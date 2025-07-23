@@ -1,0 +1,13 @@
+SystemConfig:
+  is_train: true
+  additional_info: ""
+  seed: 42
+  devices: "0"
+  hf_token: ""
+  use_lora: true
+  use_qlora: false
+  data_raw_path: "/workspace/kli_llm/data/raw"
+  data_rag_path: "/workspace/kli_llm/data/rag"
+
+  # only test
+  loaded_model_path: "" # if current task is inference, must be set to the path of model to load

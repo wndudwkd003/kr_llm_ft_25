@@ -28,6 +28,7 @@ class UnslothSFTTrainer:
         # if tokenizer pad token is None, set it to eos token
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+            print("Pad token is set to EOS token.")
 
         self.tokenizer.padding_side = "right"
 
@@ -40,20 +41,6 @@ class UnslothSFTTrainer:
             bias=self.cm.lora.bias,
             random_state=self.cm.system.seed,
         )
-
-    def prepare_dataset(self):
-        train_dataset = SFTDataset(
-            fname=os.path.join(self.cm.system.data_raw_path, "train.json"),
-            tokenizer=self.tokenizer
-        )
-
-        eval_dataset = SFTDataset(
-            fname=os.path.join(self.cm.system.data_raw_path, "dev.json"),
-            tokenizer=self.tokenizer
-        )
-
-        return train_dataset, eval_dataset
-
 
     def train(self, train_dataset: SFTDataset, eval_dataset: SFTDataset):
         sft_dict = asdict(self.cm.sft)
@@ -90,6 +77,7 @@ class UnslothSFTTrainer:
         # self.tokenizer.save_pretrained(save_path)
 
         # 설정 파일도 함께 저장
+        self.cm.update_config("system", {"hf_token": ""}) # remove token for security
         self.cm.save_all_configs(os.path.join(self.cm.sft.output_dir, "configs"))
 
         print(f"Adapter saved to: {save_path}")

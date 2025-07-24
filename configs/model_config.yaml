@@ -6,7 +6,8 @@ dtype: "fp16"
 use_flash_attention: true
 
 # only train
-early_stopping: 3 # or null
+early_stopping: 5 # or null
+early_stopping_threshold: 0.001 # or null
 
 # only test
 max_new_tokens: 512

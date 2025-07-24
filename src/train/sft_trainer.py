@@ -1,7 +1,7 @@
 import os
 from unsloth import FastLanguageModel
 from trl import SFTTrainer
-from transformers import TrainingArguments
+from transformers import TrainingArguments, EarlyStoppingCallback
 from src.configs.config_manager import ConfigManager
 from src.data.sft_dataset import SFTDataset
 from src.data.dataset import DataCollatorForSupervisedDataset
@@ -63,12 +63,18 @@ class UnslothSFTTrainer:
             tokenizer=self.tokenizer,
         )
 
+        callbacks = EarlyStoppingCallback(
+            early_stopping_patience=self.cm.model.early_stopping,
+            early_stopping_threshold=self.cm.model.early_stopping_threshold
+        ) if self.cm.model.early_stopping else None
+
         self.trainer = SFTTrainer(
             model=self.model,
             processing_class=self.tokenizer,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
             data_collator=data_collator,
+            callbacks=callbacks,
             args=training_args,
         )
 

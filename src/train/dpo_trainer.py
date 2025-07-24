@@ -55,7 +55,7 @@ cm.dpo_hparams             : dict (DPOTrainer 전용 하이퍼파라미터)
 --------------------
 unsloth>=0.6, transformers>=4.41, trl>=0.9
 """
-
+import unsloth
 from __future__ import annotations
 import os
 import json

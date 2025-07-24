@@ -90,7 +90,7 @@ class UnslothSFTTrainer:
         # self.tokenizer.save_pretrained(save_path)
 
         # 설정 파일도 함께 저장
-        self.cm.save_all_configs(os.path.join(save_path, "configs"))
+        self.cm.save_all_configs(os.path.join(self.cm.sft.output_dir, "configs"))
 
         print(f"Adapter saved to: {save_path}")
         return save_path

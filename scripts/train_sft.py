@@ -9,7 +9,6 @@ from src.utils.path_utils import get_output_dir
 
 CURRENT_TRAIN_TYPE = "sft"
 
-
 def init_config_manager(config_dir: str = "configs", train_type: str = "dpo") -> ConfigManager:
     config_manager = ConfigManager()
     config_manager.load_all_configs(config_dir=config_dir)

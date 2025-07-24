@@ -4,8 +4,8 @@ seed: 42
 hf_token: ""
 use_lora: true
 use_qlora: false
-data_raw_path: "/workspace/kli_llm/data/raw"
-data_rag_path: "/workspace/kli_llm/data/rag"
+data_raw_path: "data/raw"
+data_rag_path: "data/rag"
 
 # only test
 loaded_model_path: "" # if current task is inference, must be set to the path of model to load

@@ -63,10 +63,10 @@ class UnslothSFTTrainer:
             tokenizer=self.tokenizer,
         )
 
-        callbacks = EarlyStoppingCallback(
+        callbacks = [EarlyStoppingCallback(
             early_stopping_patience=self.cm.model.early_stopping,
             early_stopping_threshold=self.cm.model.early_stopping_threshold
-        ) if self.cm.model.early_stopping else None
+        )]if self.cm.model.early_stopping else None
 
         self.trainer = SFTTrainer(
             model=self.model,
@@ -90,7 +90,7 @@ class UnslothSFTTrainer:
         # self.tokenizer.save_pretrained(save_path)
 
         # 설정 파일도 함께 저장
-        self.cm.save_all_configs(os.path.join(save_path, "configs"))
+        self.cm.save_all_configs(os.path.join(self.cm.sft.output_dir, "configs"))
 
         print(f"Adapter saved to: {save_path}")
         return save_path

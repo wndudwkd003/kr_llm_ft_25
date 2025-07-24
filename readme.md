@@ -1,3 +1,5 @@
+### 폴더 구조
+
 ```
 .
 |-- configs
@@ -15,9 +17,9 @@
 |       |-- test.json
 |       `-- train.json
 |-- output
-|   `-- 2025-07-24_06-49-26_r_128_ra_256_rd_0.2_sft
+|   `-- 2025-07-24_07-40-50_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft
 |       |-- README.md
-|       |-- checkpoint-10
+|       |-- checkpoint-1200
 |       |   |-- README.md
 |       |   |-- adapter_config.json
 |       |   |-- adapter_model.safetensors
@@ -31,23 +33,24 @@
 |       |   |-- tokenizer_config.json
 |       |   |-- trainer_state.json
 |       |   `-- training_args.bin
+|       |-- configs
+|       |   |-- lora_config.yaml
+|       |   |-- model_config.yaml
+|       |   |-- sft_config.yaml
+|       |   `-- system_config.yaml
 |       |-- logs
-|       |   `-- events.out.tfevents.1753339785.c0e82bb3dc9c.2157345.0
+|       |   `-- events.out.tfevents.1753342868.c0e82bb3dc9c.2233602.0
 |       |-- lora_adapter
 |       |   |-- README.md
 |       |   |-- adapter_config.json
-|       |   |-- adapter_model.safetensors
-|       |   `-- configs
-|       |       |-- lora_config.yaml
-|       |       |-- model_config.yaml
-|       |       |-- sft_config.yaml
-|       |       `-- system_config.yaml
+|       |   `-- adapter_model.safetensors
 |       `-- metrics.json
 |-- readme.md
 |-- run
 |   `-- run_sft_train.sh
 |-- scripts
 |   |-- __pycache__
+|   |   |-- train_sft.cpython-311.pyc
 |   |   `-- train_sft.cpython-312.pyc
 |   |-- train_dpo.py
 |   `-- train_sft.py

@@ -1,6 +1,6 @@
 data/
 output/
-src/configs/tokens/token.yaml
+src/configs/tokens/
 logs/
 output/
 unsloth_compiled_cache/

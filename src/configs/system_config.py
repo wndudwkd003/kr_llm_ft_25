@@ -8,9 +8,11 @@ class SystemConfig:
     hf_token: str = "" # it will be set by the function
     use_lora: bool = True
     use_qlora: bool = False
-    data_raw_path: str = "/workspace/kli_llm/data/raw"
-    data_rag_path: str = "/workspace/kli_llm/data/rag"
+    data_raw_dir: str = "data/raw"
+    data_rag_dir: str = "data/rag"
 
     # only inference
-    loaded_model_path: str = "" # if current task is inference, must be set to the path of model to load
+    save_dir: str = "" # if will be set by the function
+    adapter_dir: str = "lora_adapter" # it will be set by the function
+    test_result_dir: str = "test_results" # it will be set by the function
 

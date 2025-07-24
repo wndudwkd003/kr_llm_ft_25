@@ -58,11 +58,9 @@ def main(cm: ConfigManager):
 
     results = []
 
-    progress_bar = tqdm(enumerate(test_data), total=len(test_data), ncols=100)
 
-    for i, sample in progress_bar:
-        progress_bar.set_description(f"Testing [{i+1}/{len(test_data)}]")
 
+    for sample in tqdm(test_data, desc="Testing", unit="sample"):
         # make_chat 함수로 프롬프트 생성
         user_prompt = make_chat(sample["input"])
         message = [

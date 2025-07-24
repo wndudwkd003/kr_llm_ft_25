@@ -30,4 +30,5 @@ class SFTConfig:
     metric_for_best_model: str = "eval_loss"
     greater_is_better: bool = False
     optim: str = "adamw_torch" # "adamw_torch" is default, adamw_hf or "adamw_8bit" or "paged_adamw_8bit"
+    push_to_hub: bool = False
 

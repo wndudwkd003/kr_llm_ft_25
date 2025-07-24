@@ -1,7 +1,10 @@
 import os, yaml, torch
 from dataclasses import is_dataclass, fields
 from typing import TypeVar, Any
-from pathlib import Path
+from src.configs.system_config import SystemConfig
+from src.configs.model_config import ModelConfig
+from src.configs.sft_config import SFTConfig
+from src.configs.lora_config import LoRAConfig
 
 T = TypeVar('T')
 
@@ -48,10 +51,7 @@ class ConfigManager:
 
     def load_all_configs(self, config_dir: str = "configs"):
         """configs 디렉토리의 모든 설정 파일 로드"""
-        from src.configs.system_config import SystemConfig
-        from src.configs.model_config import ModelConfig
-        from src.configs.sft_config import SFTConfig
-        from src.configs.lora_config import LoRAConfig
+
 
         # 설정 클래스 매핑
         config_mapping = {
@@ -117,22 +117,22 @@ class ConfigManager:
         self._config_paths.clear()
 
     @property
-    def system(self):
+    def system(self) -> SystemConfig:
         """시스템 설정 빠른 접근"""
         return self.get_config('system')
 
     @property
-    def model(self):
+    def model(self) -> ModelConfig:
         """모델 설정 빠른 접근"""
         return self.get_config('model')
 
     @property
-    def sft(self):
+    def sft(self) -> SFTConfig:
         """SFT 설정 빠른 접근"""
         return self.get_config('sft')
 
     @property
-    def lora(self):
+    def lora(self) -> LoRAConfig:
         """LoRA 설정 빠른 접근"""
         return self.get_config('lora')
 

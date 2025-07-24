@@ -34,3 +34,13 @@ class DPOConfig:
     seed: int = 42
     push_to_hub: bool = False
 
+    # dpo parameters
+    model_path: str = "output/2025-07-24_20-06-25_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft"
+    beta: float = 0.1
+    loss_type: str = "sigmoid"
+    label_smoothing: float = 0.0
+    reference_free: bool = False
+    precompute_ref_log_probs: bool = True
+    max_length: int = 2048
+    max_prompt_length: int = 1024
+    max_target_length: int = 512

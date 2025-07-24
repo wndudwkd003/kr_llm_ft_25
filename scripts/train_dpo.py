@@ -1,10 +1,10 @@
 import unsloth
 import os, json, argparse
 from transformers import set_seed
-from src.train.sft_trainer import UnslothSFTTrainer
+from src.train.dpo_trainer import UnslothDPOTrainer
 from src.configs.config_manager import ConfigManager
 from src.utils.data_utils import prepare_dataset
-from src.data.dpo_dataset import SFTDataset
+from src.data.dpo_dataset import DPODataset
 from src.utils.path_utils import get_output_dir
 
 CURRENT_TRAIN_TYPE = "dpo"
@@ -26,13 +26,13 @@ def save_metrics(metrics, output_dir):
     print(f"Metrics saved to {metrics_file}")
 
 def main():
-    # SFT 트레이너 초기화
-    trainer = UnslothSFTTrainer(config_manager)
+    # DPO 트레이너 초기화
+    trainer = UnslothDPOTrainer(config_manager)
 
     train_dataset, eval_dataset = prepare_dataset(
         config_manager=config_manager,
         tokenizer=trainer.tokenizer,
-        data_class=SFTDataset
+        data_class=DPODataset
     )
 
     metrics = trainer.train(train_dataset, eval_dataset)

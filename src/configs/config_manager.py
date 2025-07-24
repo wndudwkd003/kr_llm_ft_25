@@ -145,7 +145,11 @@ class ConfigManager:
     def lora(self) -> LoRAConfig:
         """LoRA 설정 빠른 접근"""
         return self.get_config('lora')
-
+    
+    @property
+    def dpo(self) -> DPOConfig:
+        """DPO 설정 빠른 접근"""
+        return self.get_config('dpo')
 
 class YAMLLoader:
     def load(self, yaml_path: str) -> dict[str, Any]:

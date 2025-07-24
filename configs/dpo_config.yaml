@@ -10,17 +10,6 @@ per_device_eval_batch_size: 1
 eval_accumulation_steps: 1
 gradient_accumulation_steps: 1  # GLOBAL_BATCH_SIZE // (per_device_train_batch_size * NUM_DEVICES)
 
-# DPO 하이퍼파라미터
-dpo_hparams:
-  beta: 0.1                 # DPO 온도 파라미터
-  loss_type: "sigmoid"      # "sigmoid" | "ipo" | "hinge" | "kto_pair"
-  label_smoothing: 0.0
-  reference_free: false     # True면 ref model 없이 학습
-  precompute_ref_log_probs: true  # ref 확률 사전 계산 (속도↑, 메모리↑)
-  max_length: 2048          # 전체 길이(프롬프트+답변)
-  max_prompt_length: 1024   # 프롬프트 부분 최대 길이
-  max_target_length: 512    # 답변 부분 최대 길이
-
 # 평가 및 저장 전략
 eval_strategy: "steps"  # "no", "epoch", "steps"
 save_strategy: "steps"  # "no", "epoch", "steps"
@@ -48,9 +37,9 @@ fp16: true
 bf16: false
 
 # 기타 학습 설정
-packing: false
-gradient_checkpointing: true
-activation_offloading: false
+# packing: false
+# gradient_checkpointing: true
+# activation_offloading: false
 
 # 레이블 설정
 label_names:
@@ -66,3 +55,14 @@ optim: "adamw_torch"  # "adamw_torch", "adamw_hf", "adamw_8bit", "paged_adamw_8b
 
 # 허브에 푸시 설정
 push_to_hub: false
+
+# DPO 하이퍼파라미터
+model_path: "output/2025-07-24_20-06-25_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft"  # DPO 모델 경로
+beta: 0.1                 # DPO 온도 파라미터
+loss_type: "sigmoid"      # "sigmoid" | "ipo" | "hinge" | "kto_pair"
+label_smoothing: 0.0
+reference_free: false     # True면 ref model 없이 학습
+precompute_ref_log_probs: true  # ref 확률 사전 계산 (속도↑, 메모리↑)
+max_length: 2048          # 전체 길이(프롬프트+답변)
+max_prompt_length: 1024   # 프롬프트 부분 최대 길이
+max_target_length: 512    # 답변 부분 최대 길이

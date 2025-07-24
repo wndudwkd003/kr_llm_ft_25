@@ -149,21 +149,19 @@ class UnslothDPOTrainer:
             pad_to_multiple_of=8,
         )
 
-        # DPO 하이퍼파라미터 (beta, loss_type 등)
-        dpo_kwargs = self.cm.dpo_hparams.copy() if hasattr(self.cm, "dpo_hparams") else {}
-
         self.trainer = DPOTrainer(
             model=self.model,
             ref_model=self.ref_model,  # None일 경우 내부에서 복제하여 reference model로 사용
             args=training_args,
-            beta=dpo_kwargs.get("beta", 0.1),
-            loss_type=dpo_kwargs.get("loss_type", "sigmoid"),
-            label_smoothing=dpo_kwargs.get("label_smoothing", 0.0),
-            reference_free=dpo_kwargs.get("reference_free", False),
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
             tokenizer=self.tokenizer,
             data_collator=data_collator,
+            # dpo parameters
+            beta=self.cm.dpo.beta,
+            loss_type=self.cm.dpo.loss_type,
+            label_smoothing=self.cm.dpo.label_smoothing,
+            reference_free=self.cm.dpo.reference_free,
         )
 
         train_result = self.trainer.train()

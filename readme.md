@@ -1,3 +1,35 @@
+## 도커 환경에서 실행하기
+
+### 도커 이미지 불러오기
+```
+비공개
+```
+
+
+### 도커 컨테이너 생성
+
+- 마운트 환경 생각해서 실행 명령어 입력
+```
+docker run -it --name kjy_kli_llm --gpus all ymail3/kr_llm_ft_25:v_1 /bin/bash
+```
+
+- 예시
+```
+docker run -it --name kjy_kli_llm \
+  -v /dev/hdd/user/kjy/kli_llm_workspace:/workspace \
+  -v /home/oem/.cache/huggingface:/root/.cache/huggingface \
+  --gpus all \
+  ymail3/kr_llm_ft_25:v_1 \
+  /bin/bash
+```
+
+### 도커 컨테이너 입장
+```
+docker exec -it <컨테이너ID> bash
+```
+
+
+
 ### 폴더 구조
 
 ```

@@ -6,6 +6,7 @@ from src.configs.config_manager import ConfigManager
 from src.utils.data_utils import prepare_dataset
 from src.data.sft_dataset import SFTDataset
 from src.utils.path_utils import get_output_dir
+from src.utils.huggingface_utils import init_hub_env
 
 CURRENT_TRAIN_TYPE = "sft"
 
@@ -49,6 +50,7 @@ if __name__ == "__main__":
     # 설정 관리자 초기화
     config_manager = init_config_manager(config_dir=args.config, train_type=CURRENT_TRAIN_TYPE)
     config_manager.update_config("sft", {"seed": config_manager.system.seed})
+    init_hub_env(config_manager.system.hf_token)
     set_seed(config_manager.system.seed)
 
     main()

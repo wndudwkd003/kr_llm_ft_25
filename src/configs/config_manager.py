@@ -44,6 +44,14 @@ class ConfigManager:
         if name is None:
             name = config_class.__name__.lower().replace('config', '')
 
+        # 토큰이 비어있으면 저장된 토큰 로드
+        if name == 'system' and hasattr(config, 'hf_token') and config.hf_token == "":
+            token_path = "src/configs/tokens/token.yaml"
+            if os.path.exists(token_path):
+                token_data = self.yaml_loader.load(token_path)
+                if 'hf_token' in token_data:
+                    config.hf_token = token_data['hf_token']
+
         # 설정 저장
         self._configs[name] = config
         self._config_paths[name] = yaml_path

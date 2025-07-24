@@ -63,10 +63,10 @@ class UnslothSFTTrainer:
             tokenizer=self.tokenizer,
         )
 
-        callbacks = EarlyStoppingCallback(
+        callbacks = [EarlyStoppingCallback(
             early_stopping_patience=self.cm.model.early_stopping,
             early_stopping_threshold=self.cm.model.early_stopping_threshold
-        ) if self.cm.model.early_stopping else None
+        )]if self.cm.model.early_stopping else None
 
         self.trainer = SFTTrainer(
             model=self.model,

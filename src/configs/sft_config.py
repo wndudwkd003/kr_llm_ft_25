@@ -22,13 +22,14 @@ class SFTConfig:
     report_to: list[str] | None = field(default_factory=lambda: ["tensorboard"])
     fp16: bool = True
     bf16: bool = False
-    packing: bool = False
-    gradient_checkpointing: bool = True
-    activation_offloading: bool = False
+    # packing: bool = False
+    # gradient_checkpointing: bool = True
+    # activation_offloading: bool = False
     label_names: list[str] = field(default_factory=lambda: ["labels"])
     load_best_model_at_end: bool = True
     metric_for_best_model: str = "eval_loss"
     greater_is_better: bool = False
     optim: str = "adamw_torch" # "adamw_torch" is default, adamw_hf or "adamw_8bit" or "paged_adamw_8bit"
+    seed: int = 42
     push_to_hub: bool = False
 

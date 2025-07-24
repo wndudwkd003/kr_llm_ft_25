@@ -5,7 +5,6 @@ class SystemConfig:
     is_train: bool = True
     additional_info: str = "" # it will be concatenated to other configs
     seed: int = 42
-    devices: str = "0"
     hf_token: str = "" # it will be set by the function
     use_lora: bool = True
     use_qlora: bool = False

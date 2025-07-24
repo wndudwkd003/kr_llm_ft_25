@@ -5,7 +5,7 @@ from transformers import TrainingArguments
 from src.configs.config_manager import ConfigManager
 from src.data.sft_dataset import SFTDataset
 from src.data.dataset import DataCollatorForSupervisedDataset
-
+from dataclasses import asdict
 
 class UnslothSFTTrainer:
     def __init__(self, config_manager: ConfigManager):
@@ -13,6 +13,7 @@ class UnslothSFTTrainer:
         self.model = None
         self.tokenizer = None
         self.trainer = None
+        self.setup_model()
 
     def setup_model(self):
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
@@ -55,7 +56,8 @@ class UnslothSFTTrainer:
 
 
     def train(self, train_dataset: SFTDataset, eval_dataset: SFTDataset):
-        training_args = TrainingArguments(**self.cm.sft)
+        sft_dict = asdict(self.cm.sft)
+        training_args = TrainingArguments(**sft_dict)
 
         data_collator = DataCollatorForSupervisedDataset(
             tokenizer=self.tokenizer,
@@ -72,3 +74,17 @@ class UnslothSFTTrainer:
 
         trainer_stats = self.trainer.train()
         return trainer_stats
+
+    def save_adapter(self, save_path:str|None = None):
+        """LoRA 어댑터 저장"""
+        if save_path is None:
+            save_path = os.path.join(self.cm.sft.output_dir, "lora_adapter")
+
+        self.model.save_pretrained(save_path)
+        # self.tokenizer.save_pretrained(save_path)
+
+        # 설정 파일도 함께 저장
+        self.cm.save_all_configs(os.path.join(save_path, "configs"))
+
+        print(f"Adapter saved to: {save_path}")
+        return save_path

@@ -10,6 +10,7 @@ class ModelConfig:
 
     # only train
     early_stopping: int = 3
+    early_stopping_threshold: float = 0.001
 
     # only inference
     max_new_tokens: int = 512

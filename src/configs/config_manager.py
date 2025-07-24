@@ -1,10 +1,11 @@
 import os, yaml, torch
-from dataclasses import is_dataclass, fields
+from dataclasses import is_dataclass, fields, asdict
 from typing import TypeVar, Any
 from src.configs.system_config import SystemConfig
 from src.configs.model_config import ModelConfig
 from src.configs.sft_config import SFTConfig
 from src.configs.lora_config import LoRAConfig
+
 
 T = TypeVar('T')
 
@@ -111,6 +112,13 @@ class ConfigManager:
 
         return config
 
+    def print_all_configs(self):
+        # 예쁘게 출력
+        for name, config in self._configs.items():
+            print(f"{name.capitalize()} Configuration:")
+            print(yaml.dump(self.type_converter.convert_to_dict(config), allow_unicode=True, default_flow_style=False))
+            print("-" * 40)
+
     def reset(self):
         """모든 설정 초기화"""
         self._configs.clear()
@@ -186,4 +194,5 @@ class TypeConverter:
             result[field.name] = value
 
         return result
+
 

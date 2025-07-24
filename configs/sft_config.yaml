@@ -1,8 +1,10 @@
 # 출력 디렉토리 - 실행 시 자동으로 변경됨
 output_dir: "output"
+seed: 42
 
 # 학습 에폭 수
-num_train_epochs: 5
+num_train_epochs: 1
+max_steps: 0
 
 # 배치 크기 설정
 per_device_train_batch_size: 1
@@ -37,9 +39,9 @@ fp16: true
 bf16: false
 
 # 기타 학습 설정
-packing: false
-gradient_checkpointing: true
-activation_offloading: false
+# packing: false
+# gradient_checkpointing: true
+# activation_offloading: false
 
 # 레이블 설정
 label_names:

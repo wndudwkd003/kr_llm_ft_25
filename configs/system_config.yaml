@@ -1,7 +1,6 @@
 is_train: true
 additional_info: ""
 seed: 42
-devices: "0"
 hf_token: ""
 use_lora: true
 use_qlora: false

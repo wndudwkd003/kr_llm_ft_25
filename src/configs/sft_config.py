@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 class SFTConfig:
     output_dir: str = "output" # it will be changed by the function
     num_train_epochs: int = 5
+    max_steps: int = 0
     per_device_train_batch_size: int = 1
     per_device_eval_batch_size: int = 1
     eval_accumulation_steps: int = 1

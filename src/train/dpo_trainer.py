@@ -60,6 +60,12 @@ class UnslothDPOTrainer(BaseTrainer):
             self.tokenizer_setup()
             print("SFT adapter merged successfully")
 
+            """
+
+            todo: 여기 기존의 모델이 가중치 수가 변하는지 확인 해야 함. 그리고 모델 불러오는 중간에 안쓰는 용량 차지하는게 아닌지 확인 해야 함
+
+            """
+
         # DPO를 위한 새로운 LoRA 어댑터 추가
         print("Adding new LoRA adapter for DPO training")
         self.model = FastLanguageModel.get_peft_model(

@@ -5,7 +5,6 @@ import torch
 class ModelConfig:
     model_id: str = ""
     dtype: str|torch.dtype = ""
-    use_flash_attention: bool = True
     max_seq_length: int = 4096
 
     # only train

@@ -1,16 +1,15 @@
 is_train: true
-additional_info: "task 3 데이터 세트 병합 및 증강"
+additional_info: "과제 1 증강"
 seed: 42
 deterministic: true
 hf_token: ""
 use_lora: true
 use_qlora: false
-data_raw_dir: "data/dpo"
+data_raw_dir: "data/rag_results"
 data_rag_dir: "data/rag"
-prompt_version: "task3_1"
+prompt_version: "task1"
 data_question_length_limit: -1 # -1 means no limit
 data_shuffle: true
-
 
 # only test
 save_dir: "" # it will be set by the function

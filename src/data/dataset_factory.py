@@ -1,6 +1,6 @@
 from src.data.sft_dataset import SFTDataset
 from src.data.dpo_dataset import DPODataset
-from src.data.prompt_manager import PromptVersion
+from src.configs.config_manager import ConfigManager
 
 class DatasetFactory:
     DATASET_TYPES = {
@@ -15,16 +15,18 @@ class DatasetFactory:
         dataset_type: str,
         fname: str,
         tokenizer,
-        prompt_version: PromptVersion = PromptVersion.V1,
-        data_question_length_limit: int = 512,
+        config_manager: ConfigManager,
         data_shuffle: bool = False,
-        use_rag: bool = False,
-        context_field: str = "retrieved_context"
     ):
         """데이터셋 생성"""
         dataset_class = cls.DATASET_TYPES.get(dataset_type.lower())
         if not dataset_class:
             raise ValueError(f"Unknown dataset type: {dataset_type}")
 
-        return dataset_class(fname, tokenizer, prompt_version, data_question_length_limit, data_shuffle, use_rag, context_field)
+        return dataset_class(
+            fname=fname,
+            tokenizer=tokenizer,
+            config_manager=config_manager,
+            data_shuffle=data_shuffle
+        )
 

@@ -45,10 +45,7 @@ def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "
     common_args = dict(
         dataset_type=task_type,
         tokenizer=tokenizer,
-        prompt_version=prompt_version,
-        data_question_length_limit=config_manager.system.data_question_length_limit,
-        use_rag=config_manager.rag.use_rag,
-        context_field=config_manager.rag.context_field,
+        config_manager=config_manager,
     )
 
     train_dataset = DatasetFactory.create_dataset(

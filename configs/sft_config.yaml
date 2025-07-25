@@ -7,7 +7,7 @@ num_train_epochs: 5
 max_steps: -1 # -1은 전체 에폭 수에 따라 자동으로 계산됨, 디버깅 용도
 
 # 배치 크기 설정
-per_device_train_batch_size: 8
+per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
 eval_accumulation_steps: 1
 gradient_accumulation_steps: 1  # GLOBAL_BATCH_SIZE // (per_device_train_batch_size * NUM_DEVICES)
@@ -15,8 +15,8 @@ gradient_accumulation_steps: 1  # GLOBAL_BATCH_SIZE // (per_device_train_batch_s
 # 평가 및 저장 전략
 eval_strategy: "steps"  # "no", "epoch", "steps"
 save_strategy: "steps"  # "no", "epoch", "steps"
-eval_steps: 613 # 613 100
-save_steps: 613 # 613 100
+eval_steps: 100 # 613 100
+save_steps: 100 # 613 100
 logging_steps: 25
 
 # 학습률 및 스케줄러

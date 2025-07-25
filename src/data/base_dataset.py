@@ -1,6 +1,7 @@
 import json, torch, random
 from typing import Any
 from abc import ABC, abstractmethod
+from src.configs.config_manager import ConfigManager
 from src.data.prompt_manager import PromptVersion, PromptManager
 
 DEBUG = False  # 디버깅 모드 설정
@@ -10,20 +11,14 @@ class BaseDataset(ABC):
         self,
         fname: str,
         tokenizer,
-        prompt_version: PromptVersion = PromptVersion.V0,
-        data_question_length_limit: int = 512,
-        data_shuffle: bool = False,
-        use_rag: bool = False,
-        context_field: str = "retrieved_context"
+        config_manager: ConfigManager,
+        data_shuffle = False,
     ):
         self.fname = fname
         self.tokenizer = tokenizer
-        self.prompt_version = prompt_version
+        self.config_manager = config_manager
         self.IGNORE_INDEX = -100
-        self.data_question_length_limit = data_question_length_limit
         self.data_shuffle = data_shuffle
-        self.use_rag = use_rag
-        self.context_field = context_field
 
         # 데이터 저장용
         self.inp = []
@@ -74,20 +69,28 @@ class BaseDataset(ABC):
         }
 
 
-def get_rag_context(example: dict[str, Any], context_field: str = "retrieved_context") -> str:
-    """RAG 사용 여부에 따라 context를 반환하는 함수"""
-    return example.get(context_field, "")
+def get_rag_context(example: dict[str, Any], context_field: str = "retrieved_context", context_text="[관련 정보]") -> str:
+    """RAG 사용 여부에 따라 context를 반환하는 함수. 예: [관련 정보] ~~~ """
+    return f"{context_text} {example.get(context_field, "")}"
 
 
-def make_chat(inp, prompt_version: PromptVersion, use_rag: bool = False, context_field: str = "retrieved_context") -> str:
+def make_chat(
+    inp,
+    config_manager: ConfigManager,
+) -> str:
     """입력 데이터를 채팅 형식으로 변환하는 함수 (버전별 프롬프트 적용)"""
+
+    prompt_version = config_manager.system.prompt_version
+    use_rag = config_manager.rag.use_rag
+    context_field = config_manager.rag.context_field
+    context_text = config_manager.rag.context_text
 
     # 버전에 맞는 instruction 가져오기
     instruction = PromptManager.get_instruction_for_type(prompt_version, inp.get('question_type', ''))
 
     # RAG 컨텍스트 가져오기
     if use_rag:
-        context = get_rag_context(inp, context_field)
+        context = get_rag_context(inp, context_field, context_text)
         if context:
             instruction += f" {context}"
 

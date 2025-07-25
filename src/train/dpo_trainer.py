@@ -56,13 +56,13 @@ cm.dpo_hparams             : dict (DPOTrainer 전용 하이퍼파라미터)
 unsloth>=0.6, transformers>=4.41, trl>=0.9
 """
 import unsloth
-from __future__ import annotations
+#from __future__ import annotations
 import os
 import json
 from typing import Tuple, Optional, List, Dict
 
 from unsloth import FastLanguageModel
-from trl import DPOTrainer, DPODataCollatorWithPadding
+from trl import DPOTrainer
 from transformers import TrainingArguments, PreTrainedTokenizerBase
 from torch.utils.data import Dataset
 

@@ -136,23 +136,49 @@ class DataCollatorForDPODataset:
     """
     DPOTrainer에서 요구하는 데이터 콜레이터.
     """
-    def __init__(self, tokenizer: PreTrainedTokenizerBase, max_length: Optional[int] = None):
-        self.tokenizer = tokenizer
+    def __init__(self, tokenizer, max_length=None, pad_multiple=8):
+        self.tok = tokenizer
         self.max_length = max_length
+        self.pad_multiple = pad_multiple
 
-    def __call__(self, features: List[Dict[str, str]]):
-        prompts = [f["prompt"] for f in features]
-        chosen = [f["chosen"] for f in features]
-        rejected = [f["rejected"] for f in features]
+    def __call__(self, features):
+        prompts   = [f["prompt"]   for f in features]
+        chosens   = [f["chosen"]   for f in features]
+        rejecteds = [f["rejected"] for f in features]
 
-        # 토큰화
-        tokenized_prompts = self.tokenizer(prompts, padding=True, truncation=True, max_length=self.max_length)
-        tokenized_chosen = self.tokenizer(chosen, padding=True, truncation=True, max_length=self.max_length)
-        tokenized_rejected = self.tokenizer(rejected, padding=True, truncation=True, max_length=self.max_length)
+        # 프롬프트만
+        prompt_enc = self.tok(
+            prompts,
+            padding=True,
+            truncation=True,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_multiple,
+            return_tensors="pt",
+        )
+
+        # 프롬프트 + chosen / rejected
+        chosen_enc = self.tok(
+            [p + c for p, c in zip(prompts, chosens)],
+            padding=True,
+            truncation=True,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_multiple,
+            return_tensors="pt",
+        )
+        rejected_enc = self.tok(
+            [p + r for p, r in zip(prompts, rejecteds)],
+            padding=True,
+            truncation=True,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_multiple,
+            return_tensors="pt",
+        )
 
         return {
-            "input_ids": tokenized_prompts["input_ids"],
-            "chosen_ids": tokenized_chosen["input_ids"],
-            "rejected_ids": tokenized_rejected["input_ids"],
-            "attention_mask": tokenized_prompts["attention_mask"],
+            "prompt_input_ids":        prompt_enc["input_ids"],
+            "prompt_attention_mask":   prompt_enc["attention_mask"],
+            "chosen_input_ids":        chosen_enc["input_ids"],
+            "chosen_attention_mask":   chosen_enc["attention_mask"],
+            "rejected_input_ids":      rejected_enc["input_ids"],
+            "rejected_attention_mask": rejected_enc["attention_mask"],
         }

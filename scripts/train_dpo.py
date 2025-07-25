@@ -9,8 +9,16 @@ from src.utils.path_utils import get_output_dir
 
 CURRENT_TRAIN_TYPE = "dpo"
 
-def init_config_manager(config_dir: str = "configs", train_type: str = "dpo") -> ConfigManager:
+def init_config_manager(path: str = "path", train_type: str = "dpo") -> ConfigManager:
     config_manager = ConfigManager()
+
+    print(path)
+    config_dir = os.path.join(path, "configs")
+    lora_adapter_dir = os.path.join(path, "lora_adapter")
+    print(config_dir)
+    print(lora_adapter_dir)
+    exit()
+
     config_manager.load_all_configs(config_dir=config_dir)
     output_dir = get_output_dir(config_manager, train_type=train_type)
     os.makedirs(output_dir, exist_ok=True)
@@ -43,11 +51,11 @@ def main():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train DPO Model")
-    parser.add_argument("--config", type=str, default="configs", help="Path to the configuration directory")
+    parser.add_argument("--path", type=str, default="configs", help="Path to the configuration directory")
     args = parser.parse_args()
 
     # 설정 관리자 초기화
-    config_manager = init_config_manager(config_dir=args.config, train_type=CURRENT_TRAIN_TYPE)
+    config_manager = init_config_manager(path=args.path, train_type=CURRENT_TRAIN_TYPE)
     config_manager.update_config("dpo", {"seed": config_manager.system.seed})
     set_seed(config_manager.system.seed)
 

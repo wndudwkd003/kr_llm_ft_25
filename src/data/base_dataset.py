@@ -3,6 +3,8 @@ from typing import Any
 from abc import ABC, abstractmethod
 from src.data.prompt_manager import PromptVersion, PromptManager
 
+DEBUG = False  # 디버깅 모드 설정
+
 class BaseDataset(ABC):
     def __init__(
         self,
@@ -108,6 +110,6 @@ def make_chat(inp, prompt_version: PromptVersion, use_rag: bool = False, context
     # 최종 프롬프트 생성
     chat = " ".join(chat_parts)
 
-    if False: print(chat)  # 디버깅용 출력
+    if DEBUG: print(chat)  # 디버깅용 출력
 
     return chat

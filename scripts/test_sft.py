@@ -84,11 +84,14 @@ def main(cm: ConfigManager):
             return_tensors="pt",
         ).to(model.device)
 
+        attention_mask = (inputs != tokenizer.pad_token_id).long().to(model.device)
+
         # 생성
         outputs = model.generate(
             inputs,
             max_new_tokens=cm.model.max_new_tokens,
             do_sample=cm.model.do_sample,
+            attention_mask=attention_mask,
         )
 
         # 답변 추출
@@ -101,7 +104,6 @@ def main(cm: ConfigManager):
 
         if "#" in answer:
             answer = answer.split("#")[0].strip()
-
 
         # 결과 저장
         results.append({
@@ -130,7 +132,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # 설정 관리자 초기화
-    config_manager = init_config_manager_for_test(save_dir=args.save_dir, train_type=CURRENT_TEST_TYPE)
+    config_manager = init_config_manager_for_test(save_dir=args.save_dir)
     config_manager.update_config("sft", {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
     set_seed(config_manager.system.seed)

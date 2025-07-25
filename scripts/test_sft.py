@@ -1,20 +1,18 @@
 import unsloth
-from unsloth import FastLanguageModel
-import os, json, argparse
-import hashlib
-from tqdm.auto import tqdm
 from transformers import set_seed
-from datetime import datetime
-from src.train.sft_trainer import UnslothSFTTrainer
+from src.utils.seed_utils import set_all_seeds
+from unsloth import FastLanguageModel
+import os, json, argparse, hashlib
 from src.configs.config_manager import ConfigManager
-from src.utils.data_utils import prepare_test_dataset
-from src.data.dataset import make_chat, PROMPT
-from src.utils.path_utils import get_output_dir
+from src.data.prompt_manager import PromptManager
+from src.data.base_dataset import make_chat
 from src.utils.huggingface_utils import init_hub_env
+from tqdm.auto import tqdm
+from datetime import datetime
 
 CURRENT_TEST_TYPE = "sft"
 
-def init_config_manager_for_test(save_dir: str = "configs", train_type: str = "sft") -> ConfigManager:
+def init_config_manager_for_test(save_dir: str = "configs") -> ConfigManager:
     # 테스트 환경에서는 저장된 설정을 불러옴
     cm = ConfigManager()
     config_dir = os.path.join(save_dir, "configs")
@@ -53,18 +51,29 @@ def main(cm: ConfigManager):
     model = FastLanguageModel.for_inference(model)
     model.load_adapter(cm.system.adapter_dir)
 
+    # 테스트 데이터셋 로드
     with open(os.path.join(cm.system.data_raw_dir, "test.json"), "r", encoding="utf-8") as f:
         test_data = json.load(f)
 
+
+    # 시스템 프롬프트 가져오기
+    prompt_version = cm.system.prompt_version
+    system_prompt = PromptManager.get_system_prompt(prompt_version)
+
+    # 결과를 저장할 리스트
     results = []
-
-
 
     for sample in tqdm(test_data, desc="Testing", unit="sample"):
         # make_chat 함수로 프롬프트 생성
-        user_prompt = make_chat(sample["input"])
+        user_prompt = make_chat(
+            sample["input"],
+            prompt_version,
+            cm.rag.use_rag,
+            cm.rag.context_field
+        )
+
         message = [
-            {"role": "system", "content": PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
 
@@ -125,5 +134,6 @@ if __name__ == "__main__":
     config_manager.update_config("sft", {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
     set_seed(config_manager.system.seed)
+    set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
 
     main(config_manager)

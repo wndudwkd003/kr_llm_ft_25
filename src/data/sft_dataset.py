@@ -10,7 +10,7 @@ class SFTDataset(BaseDataset):
         question_text = example.get("input", {}).get("question", "")
         question_len = len(question_text.replace(" ", ""))  # 공백 제외
 
-        if question_len > self.data_question_length_limit:
+        if self.data_question_length_limit != -1 and question_len > self.data_question_length_limit:
             print(f"Skipping example due to question length: {question_len} > {self.data_question_length_limit}")
             return None
 
@@ -18,7 +18,12 @@ class SFTDataset(BaseDataset):
         system_prompt = PromptManager.get_system_prompt(self.prompt_version)
 
         # 사용자 프롬프트 생성
-        user_prompt = make_chat(example["input"], self.prompt_version)
+        user_prompt = make_chat(
+            example["input"],
+            self.prompt_version,
+            self.use_rag,
+            self.context_field
+        )
 
         # 메시지 구성
         message = [

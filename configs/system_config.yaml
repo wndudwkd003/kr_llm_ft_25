@@ -4,8 +4,10 @@ seed: 42
 hf_token: ""
 use_lora: true
 use_qlora: false
-data_raw_dir: "data/raw"
+data_raw_dir: "data/other/task_3_merged_1-3_c1"
 data_rag_dir: "data/rag"
+
+prompt_version: "task3"
 
 
 # only test

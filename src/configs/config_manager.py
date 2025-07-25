@@ -6,6 +6,7 @@ from src.configs.model_config import ModelConfig
 from src.configs.sft_config import SFTConfig
 from src.configs.lora_config import LoRAConfig
 from src.configs.dpo_config import DPOConfig
+from src.data.prompt_manager import PromptVersion
 
 
 T = TypeVar('T')
@@ -153,7 +154,7 @@ class ConfigManager:
     def lora(self) -> LoRAConfig:
         """LoRA 설정 빠른 접근"""
         return self.get_config('lora')
-    
+
     @property
     def dpo(self) -> DPOConfig:
         """DPO 설정 빠른 접근"""
@@ -181,21 +182,36 @@ class TypeConverter:
             nf4="nf4", # 특수 타입 for qlora
         )
 
+        self.enum_map = {
+            'prompt_version': PromptVersion,
+            # 필요하면 다른 Enum들도 추가
+        }
+
     def convert_to_dataclass(self, yaml_data: dict[str, Any], target_class: type[T]) -> T:
         # YAML 데이터를 dataclass 인스턴스로 변환
-        if 'dtype' in yaml_data and isinstance(yaml_data['dtype'], str):
-            yaml_data['dtype'] = self.dtype_map.get(yaml_data['dtype'], yaml_data['dtype'])
+        converted_data = yaml_data.copy()
 
-        return target_class(**yaml_data)
+        # dtype 변환
+        if 'dtype' in converted_data and isinstance(converted_data['dtype'], str):
+            converted_data['dtype'] = self.dtype_map.get(converted_data['dtype'], converted_data['dtype'])
+
+        # Enum 변환
+        for field_name, enum_class in self.enum_map.items():
+            if field_name in converted_data and isinstance(converted_data[field_name], str):
+                # 문자열 값으로 Enum 찾기
+                for enum_member in enum_class:
+                    if enum_member.value == converted_data[field_name]:
+                        converted_data[field_name] = enum_member
+                        break
+
+        return target_class(**converted_data)
 
     def convert_to_dict(self, obj: Any) -> dict[str, Any]:
-        # dataclass instance -> dict 변환
         if not is_dataclass(obj):
             raise TypeError(f"데이터세트 클래스가 아닙니다. {type(obj)}")
 
         result = {}
         for field in fields(obj):
-            # 클래스 속성 값 가져오기 (변수.name)
             value = getattr(obj, field.name)
 
             # dtype 변환
@@ -204,6 +220,12 @@ class TypeConverter:
                     if dtype_val == value:
                         value = dtype_str
                         break
+
+            # Enum 변환 추가!
+            elif hasattr(value, 'value') and hasattr(value, '__class__'):
+                # Enum인지 확인하고 value 속성으로 변환
+                if value.__class__ in self.enum_map.values():
+                    value = value.value
 
             result[field.name] = value
 

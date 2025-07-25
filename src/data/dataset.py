@@ -8,11 +8,8 @@ PROMPT = '''You are a helpful AI assistant. Please answer the user's questions k
     당신은 한국의 전통 문화와 역사, 문법, 사회, 과학기술 등 다양한 분야에 대해 잘 알고 있는 유능한 AI 어시스턴트 입니다. 사용자의 질문에 대해 친절하게 답변해주세요. \
     단, 동일한 문장을 절대 반복하지 마시오.'''
 
-
-def make_chat(inp):
-    """입력 데이터를 채팅 형식으로 변환하는 함수"""
-    # question type별 instruction 정의
-    type_instructions = {
+# question type별 instruction 정의
+TYPE_INSTRUCTIONS = {
         "선다형": (
             "[질문]을 잘 읽고 답변을 생성하시오. 문제를 그대로 출력하지 마시오.\n"
             "[지침]\n"
@@ -40,8 +37,12 @@ def make_chat(inp):
         )
     }
 
+
+def make_chat(inp):
+    """입력 데이터를 채팅 형식으로 변환하는 함수"""
+
     # question type에 따른 instruction 선택
-    instruction = type_instructions.get(inp['question_type'], "")
+    instruction = TYPE_INSTRUCTIONS.get(inp['question_type'], "")
 
     # 기타 정보 생성 (question과 question_type 제외)
     other_info = {k: v for k, v in inp.items() if k not in ['question', 'question_type']}

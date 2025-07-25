@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from src.data.prompt_manager import PromptVersion
 
 @dataclass
 class SystemConfig:
@@ -10,6 +11,8 @@ class SystemConfig:
     use_qlora: bool = False
     data_raw_dir: str = "data/raw"
     data_rag_dir: str = "data/rag"
+
+    prompt_version: PromptVersion = PromptVersion.V1
 
     # only inference
     save_dir: str = "" # if will be set by the function

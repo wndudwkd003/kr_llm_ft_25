@@ -120,6 +120,9 @@ def copy_dev_test_files(source_dirs: List[str], target_dir: str):
     dev.json과 test.json 파일들을 복사 (첫 번째로 찾은 것 사용)
     """
 
+    # 타겟 디렉토리 생성 (이 부분이 누락되어 있었음)
+    os.makedirs(target_dir, exist_ok=True)
+
     for file_name in ['dev.json', 'test.json']:
         target_path = os.path.join(target_dir, file_name)
 

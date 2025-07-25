@@ -5,10 +5,10 @@ deterministic: true
 hf_token: ""
 use_lora: true
 use_qlora: false
-data_raw_dir: "data/other/task_3_merged_1-3_c1"
+data_raw_dir: "data/raw" # other/task_3_merged_1-3_c1"
 data_rag_dir: "data/rag"
 prompt_version: "task3_1"
-data_question_length_limit: 1200
+data_question_length_limit: -1 # -1 means no limit
 data_shuffle: true
 
 

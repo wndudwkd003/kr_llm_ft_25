@@ -10,7 +10,9 @@ class BaseDataset(ABC):
         tokenizer,
         prompt_version: PromptVersion = PromptVersion.V0,
         data_question_length_limit: int = 512,
-        data_shuffle: bool = False
+        data_shuffle: bool = False,
+        use_rag: bool = False,
+        context_field: str = "retrieved_context"
     ):
         self.fname = fname
         self.tokenizer = tokenizer
@@ -18,6 +20,8 @@ class BaseDataset(ABC):
         self.IGNORE_INDEX = -100
         self.data_question_length_limit = data_question_length_limit
         self.data_shuffle = data_shuffle
+        self.use_rag = use_rag
+        self.context_field = context_field
 
         # 데이터 저장용
         self.inp = []
@@ -67,11 +71,23 @@ class BaseDataset(ABC):
             "labels": self.label[idx],
         }
 
-def make_chat(inp, prompt_version: PromptVersion):
+
+def get_rag_context(example: dict[str, Any], context_field: str = "retrieved_context") -> str:
+    """RAG 사용 여부에 따라 context를 반환하는 함수"""
+    return example.get(context_field, "")
+
+
+def make_chat(inp, prompt_version: PromptVersion, use_rag: bool = False, context_field: str = "retrieved_context") -> str:
     """입력 데이터를 채팅 형식으로 변환하는 함수 (버전별 프롬프트 적용)"""
 
     # 버전에 맞는 instruction 가져오기
     instruction = PromptManager.get_instruction_for_type(prompt_version, inp.get('question_type', ''))
+
+    # RAG 컨텍스트 가져오기
+    if use_rag:
+        context = get_rag_context(inp, context_field)
+        if context:
+            instruction += f" {context}"
 
     # 기타 정보 생성 (question과 question_type 제외)
     # other_info = {k: v for k, v in inp.items() if k not in ['question', 'question_type']}

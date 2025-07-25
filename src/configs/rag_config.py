@@ -17,4 +17,4 @@ class RAGConfig:
     index_name: str = "index.faiss"
     corpus_name: str = "corpus.json"
     batch_size: int = 32
-
+    use_rag: bool = False

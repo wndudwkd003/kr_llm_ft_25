@@ -1,4 +1,8 @@
 import os
+
+# Set environment variables for CUDA
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+
 import random
 import numpy as np
 import torch

@@ -5,13 +5,18 @@ deterministic: true
 hf_token: ""
 use_lora: true
 use_qlora: false
-data_raw_dir: "data/rag_results"
+data_raw_dir: "data/raw"
 data_rag_dir: "data/rag"
 prompt_version: "task1"
 data_question_length_limit: -1 # -1 means no limit
 data_shuffle: true
 
+# dpo 관련
+# 기존의 sft 모델 경로
+sft_model_for_dpo: ""
+
+
 # only test
 save_dir: "" # it will be set by the function
-adapter_dir: "lora_adapter" # it will be set by the function
+adapter_dir: "lora_adapter"
 test_result_dir: "test_results"

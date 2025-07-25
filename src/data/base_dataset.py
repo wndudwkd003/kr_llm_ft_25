@@ -12,66 +12,49 @@ class BaseDataset(ABC):
         fname: str,
         tokenizer,
         config_manager: ConfigManager,
-        data_shuffle = False,
+        data_shuffle=False,
+        task_type: str = "sft",  # ← task type 입력받기
     ):
         self.fname = fname
         self.tokenizer = tokenizer
         self.config_manager = config_manager
         self.IGNORE_INDEX = -100
         self.data_shuffle = data_shuffle
+        self.task_type = task_type
 
-        # 데이터 저장용
-        self.inp = []
-        self.label = []
-
-        # 데이터 로드 및 처리
+        self.samples = []  # input_ids/labels 또는 prompt/chosen/rejected 통합 저장
         self._load_and_process_data()
 
     def _load_and_process_data(self):
-        """데이터 로드 및 처리 파이프라인"""
         with open(self.fname, "r") as f:
             data = json.load(f)
 
-            if self.data_shuffle:
-                print(f"Shuffling data... {len(data)} examples")
-                random.shuffle(data)
-                print("Data shuffled.")
+        if self.data_shuffle:
+            print(f"Shuffling data... {len(data)} samples")
+            random.shuffle(data)
 
-        for example in data:
-            processed_example = self.process_example(example)
-            if processed_example:  # None이 아닌 경우만 추가
-                self.inp.append(processed_example["input_ids"])
-                self.label.append(processed_example["labels"])
-
-    @abstractmethod
-    def process_example(
-        self,
-        example: dict[str, Any]
-    ) -> dict[str, torch.Tensor]:
-        """
-        각 데이터 타입별로 구현해야 하는 예제 처리 메서드
-
-        Args:
-            example: 원본 데이터 예제
-
-        Returns:
-            {"input_ids": tensor, "labels": tensor} 또는 None (스킵할 경우)
-        """
-        pass
+        for samples in data:
+            processed = self.process_sample(samples)
+            if processed:
+                self.samples.append(processed)
 
     def __len__(self):
-        return len(self.inp)
+        return len(self.samples)
 
     def __getitem__(self, idx):
-        return {
-            "input_ids": self.inp[idx],
-            "labels": self.label[idx],
-        }
+        return self.samples[idx]
+
+    @abstractmethod
+    def process_sample(
+        self,
+        sample: dict[str, Any]
+    ) -> dict[str, torch.Tensor]:
+        pass
 
 
-def get_rag_context(example: dict[str, Any], context_field: str = "retrieved_context", context_text="[관련 정보]") -> str:
+def get_rag_context(sample: dict[str, Any], context_field: str = "retrieved_context", context_text="[관련 정보]") -> str:
     """RAG 사용 여부에 따라 context를 반환하는 함수. 예: [관련 정보] ~~~ """
-    return f"{context_text} {example.get(context_field, "")}"
+    return f"{context_text} {sample.get(context_field, "")}"
 
 
 def make_chat(
@@ -116,3 +99,14 @@ def make_chat(
     if DEBUG: print(chat)  # 디버깅용 출력
 
     return chat
+
+
+def check_limit_length(sample, limit_length: int) -> bool:
+    # 질문 길이 제한 적용
+    question_text = sample.get("input", {}).get("question", "")
+    question_len = len(question_text.replace(" ", ""))  # 공백 제외
+
+    if limit_length != -1 and question_len > limit_length:
+        print(f"Skipping sample due to question length: {question_len} > {limit_length}")
+        return True
+    return False

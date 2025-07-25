@@ -18,29 +18,6 @@ def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "
     prompt_version = config_manager.system.prompt_version
     print("Current prompt version:", prompt_version)
 
-    data_root = config_manager.system.data_raw_dir
-
-    if task_type.lower() == "dpo":
-        # ────────────────────────────────────────────────
-        # ① torch‑style DPODataset 로드
-        # ────────────────────────────────────────────────
-        train_ds_torch = DPODataset(
-            fname=os.path.join(data_root, "train.json"),
-            tokenizer=tokenizer,
-            max_length=config_manager.model.max_seq_length,
-        )
-        eval_ds_torch  = DPODataset(
-            fname=os.path.join(data_root, "dev.json"),
-            tokenizer=tokenizer,
-            max_length=config_manager.model.max_seq_length,
-        )
-
-        # ② 🤗 Dataset 으로 변환
-        train_ds = HFDataset.from_list(list(train_ds_torch))
-        eval_ds  = HFDataset.from_list(list(eval_ds_torch))
-
-        return train_ds, eval_ds
-
     # 공통 인자 정리
     common_args = dict(
         dataset_type=task_type,
@@ -60,10 +37,10 @@ def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "
         **common_args
     )
 
-    # 🔑 DPO일 때는 HF Dataset으로 변환
     if task_type.lower() == "dpo":
-        train_ds = _ensure_hf(train_ds)
-        eval_ds  = _ensure_hf(eval_ds)
+        print("Converting DPO dataset to Hugging Face format...")
+        train_dataset = _ensure_hf(train_dataset)
+        eval_dataset = _ensure_hf(eval_dataset)
 
     return train_dataset, eval_dataset
 

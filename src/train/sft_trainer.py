@@ -2,19 +2,12 @@ import os
 from unsloth import FastLanguageModel
 from trl import SFTTrainer
 from transformers import TrainingArguments, EarlyStoppingCallback
-from src.configs.config_manager import ConfigManager
+from src.train.base_trainer import BaseTrainer
 from src.data.sft_dataset import SFTDataset
 from src.data.dataset import DataCollatorForSupervisedDataset
 from dataclasses import asdict
 
-class UnslothSFTTrainer:
-    def __init__(self, config_manager: ConfigManager):
-        self.cm = config_manager
-        self.model = None
-        self.tokenizer = None
-        self.trainer = None
-        self.setup_model()
-
+class UnslothSFTTrainer(BaseTrainer):
     def setup_model(self):
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=self.cm.model.model_id,
@@ -25,12 +18,7 @@ class UnslothSFTTrainer:
             full_finetuning=False,
         )
 
-        # if tokenizer pad token is None, set it to eos token
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-            print("Pad token is set to EOS token.")
-
-        self.tokenizer.padding_side = "right"
+        self.tokenizer_setup()
 
         self.model = FastLanguageModel.get_peft_model(
             self.model,
@@ -41,6 +29,10 @@ class UnslothSFTTrainer:
             bias=self.cm.lora.bias,
             random_state=self.cm.system.seed,
         )
+
+        print(f"Model setup complete. Total parameters: {self.model.num_parameters():,}")
+        print(f"Trainable parameters: {self.model.num_parameters(only_trainable=True):,}")
+
 
     def train(self, train_dataset: SFTDataset, eval_dataset: SFTDataset):
         sft_dict = asdict(self.cm.sft)
@@ -71,7 +63,7 @@ class UnslothSFTTrainer:
     def save_adapter(self, save_path:str|None = None):
         """LoRA 어댑터 저장"""
         if save_path is None:
-            save_path = os.path.join(self.cm.sft.output_dir, "lora_adapter")
+            save_path = os.path.join(self.cm.sft.output_dir, self.cm.system.adapter_dir)
 
         self.model.save_pretrained(save_path)
         # self.tokenizer.save_pretrained(save_path)

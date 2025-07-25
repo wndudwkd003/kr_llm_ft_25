@@ -17,8 +17,11 @@ class SystemConfig:
     data_question_length_limit: int = 500
     data_shuffle: bool = False
 
+    # dpo 관련
+    sft_model_for_dpo: str = ""
+
     # only inference
     save_dir: str = "" # if will be set by the function
-    adapter_dir: str = "lora_adapter" # it will be set by the function
+    adapter_dir: str = "lora_adapter"
     test_result_dir: str = "test_results" # it will be set by the function
 

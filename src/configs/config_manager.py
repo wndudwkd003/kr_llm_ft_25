@@ -1,6 +1,3 @@
-import os, yaml, torch
-from dataclasses import is_dataclass, fields
-from typing import TypeVar, Any
 from src.configs.system_config import SystemConfig
 from src.configs.model_config import ModelConfig
 from src.configs.sft_config import SFTConfig
@@ -8,7 +5,10 @@ from src.configs.lora_config import LoRAConfig
 from src.configs.dpo_config import DPOConfig
 from src.configs.rag_config import RAGConfig
 from src.data.prompt_manager import PromptVersion
-
+from src.utils.path_utils import get_output_dir
+import os, yaml, torch
+from typing import TypeVar, Any
+from dataclasses import is_dataclass, fields
 
 T = TypeVar('T')
 
@@ -238,4 +238,27 @@ class TypeConverter:
 
         return result
 
+def init_config_manager(config_dir: str = "configs", train_type: str = "dpo") -> ConfigManager:
+    config_manager = ConfigManager()
+    config_manager.load_all_configs(config_dir=config_dir)
 
+    # RAG 설정을 켰는데 데이터 디렉토리가 rag_results가 아닌경우 자동으로 설정
+    if config_manager.rag.use_rag and "rag_result" not in config_manager.system.data_rag_dir:
+        print("RAG 설정이 켜져있습니다. 데이터 디렉토리를 자동으로 변경합니다.")
+        config_manager.update_config("system", {"data_raw_dir": "data/rag_results"})
+        print(f"Current data_raw_dir: {config_manager.system.data_raw_dir}")
+
+    base_path = config_manager.sft.output_dir
+
+    essential = dict(
+        model_id = config_manager.model.model_id,
+        r=config_manager.lora.r,
+        lora_alpha=config_manager.lora.lora_alpha,
+        lora_dropout=config_manager.lora.lora_dropout,
+    )
+
+    output_dir = get_output_dir(base_path=base_path, essential=essential, train_type=train_type)
+    os.makedirs(output_dir, exist_ok=True)
+    config_manager.update_config(train_type, {"output_dir": output_dir, "logging_dir": os.path.join(output_dir, "logs")})
+    config_manager.print_all_configs()
+    return config_manager

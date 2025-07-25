@@ -6,9 +6,9 @@ KURE 임베딩으로 가장 유사한 다른 answer를 찾아 rejected로 저장
 - 어떤 경우에도 데이터셋에 없던 새로운 문장을 추가하지 않음.
 
 사용 예:
-    CUDA_VISIBLE_DEVICES=1 python src/utils/dpo_data_make.py \
+    python src/utils/dpo_data_make.py \
         --input data/raw/dev.json \
-        --output data/processed/dev.json \
+        --output data/processed/dev_dpo.json \
         --model nlpai-lab/KURE-v1 \
         --top_k 5 \
         --sim_threshold 0.60 \
@@ -65,12 +65,9 @@ def main(args):
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     data = load_data(input_path)
-
-
-    # prompts = [item["input"]["question"] for item in data]
+    prompts = [item["input"]["question"] for item in data]
     answers = [item["output"]["answer"] for item in data]
     ids = [item.get("id", str(i)) for i, item in enumerate(data)]
-
 
     # 1) 임베딩
     model = SentenceTransformer(args.model)
@@ -85,7 +82,7 @@ def main(args):
     scores, idxs = index.search(embs_norm, k)
 
     saved = 0
-    # pairs = []
+    pairs = []
 
     for i, (score_row, idx_row) in enumerate(zip(scores, idxs)):
         rejected_text = None
@@ -98,6 +95,7 @@ def main(args):
                 continue
             sim = float(score_row[j_idx])
             if sim >= args.sim_threshold:
+                # 다른 원본 데이터의 answer 그대로 사용
                 rejected_text = answers[j]
                 rejected_from_id = ids[j]
                 best_score = sim
@@ -109,17 +107,23 @@ def main(args):
             rejected_from_id = ids[i]
             best_score = -1.0
 
-        # 원본 구조에 rejected 추가
-        data[i]["output"]["rejected"] = rejected_text
-        data[i]["meta"] = {
-            "rejected_from_id": rejected_from_id,
-            "cosine": best_score
+        pair_obj = {
+            "prompt": prompts[i],
+            "chosen": answers[i],
+            "rejected": rejected_text,
+            "meta": {
+                "chosen_id": ids[i],
+                "rejected_from_id": rejected_from_id,
+                "cosine": best_score
+            }
         }
+        pairs.append(pair_obj)
         saved += 1
 
-    # JSON 배열로 저장 (원본 유지 + rejected 추가)
+    # JSON 배열로 한 번에 저장
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(pairs, f, ensure_ascii=False, indent=2)
 
     print(f"[DONE] Saved {saved} pairs to {output_path}")
 
@@ -134,3 +138,4 @@ if __name__ == "__main__":
     parser.add_argument("--keep_sents", type=int, default=1, help="fallback 시 남길 문장 수")
     args_ = parser.parse_args()
     main(args_)
+

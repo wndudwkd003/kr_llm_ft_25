@@ -1,20 +1,13 @@
 import torch
 from src.data.prompt_manager import PromptManager
-from src.data.base_dataset import BaseDataset, make_chat
+from src.data.base_dataset import BaseDataset, make_chat, check_limit_length
 
 DEBUG = False
 
 class SFTDataset(BaseDataset):
-    def process_example(self, example):
+    def process_sample(self, sample):
         # 질문 길이 제한 적용
-        question_text = example.get("input", {}).get("question", "")
-        question_len = len(question_text.replace(" ", ""))  # 공백 제외
-
-        # 데이터 질문 길이 제한
-        self.data_question_length_limit = self.config_manager.system.data_question_length_limit
-
-        if self.data_question_length_limit != -1 and question_len > self.data_question_length_limit:
-            print(f"Skipping example due to question length: {question_len} > {self.data_question_length_limit}")
+        if check_limit_length(sample, self.config_manager.system.data_question_length_limit):
             return None
 
         # 시스템 프롬프트 가져오기
@@ -22,7 +15,7 @@ class SFTDataset(BaseDataset):
 
         # 사용자 프롬프트 생성
         user_prompt = make_chat(
-            example["input"],
+            sample["input"],
             config_manager=self.config_manager,
         )
 
@@ -43,7 +36,7 @@ class SFTDataset(BaseDataset):
             enable_thinking=False
         )
 
-        raw_output = example.get("output", "")
+        raw_output = sample.get("output", "")
         if isinstance(raw_output, dict):
             target_text = raw_output.get("answer", "")
         else:
@@ -67,7 +60,14 @@ class SFTDataset(BaseDataset):
         )
         target["input_ids"] = target["input_ids"].type(torch.int64)
 
-        input_ids = torch.concat((source[0], target["input_ids"][0]))
+        # input_ids = torch.concat((source[0], target["input_ids"][0]))
+        if isinstance(source, dict):
+            source_ids = source["input_ids"][0]
+        else:
+            source_ids = source[0]
+
+        input_ids = torch.concat((source_ids, target["input_ids"][0]))
+
         labels = torch.concat((
             torch.LongTensor([self.IGNORE_INDEX] * source[0].shape[0]),
             target["input_ids"][0]

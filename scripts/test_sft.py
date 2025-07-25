@@ -67,9 +67,7 @@ def main(cm: ConfigManager):
         # make_chat 함수로 프롬프트 생성
         user_prompt = make_chat(
             sample["input"],
-            prompt_version,
-            cm.rag.use_rag,
-            cm.rag.context_field
+            cm
         )
 
         message = [
@@ -123,7 +121,7 @@ def main(cm: ConfigManager):
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
 
-    print(f"\nResults saved to: {output_path}")
+    print(f"\nResults saved to: {os.path.dirname(output_path)}")
 
 
 if __name__ == "__main__":

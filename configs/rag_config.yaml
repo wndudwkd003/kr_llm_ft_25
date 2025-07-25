@@ -1,8 +1,9 @@
 source_files:
   - "data/rag/corpus.pdf"
-extension: "pdf"
 output_dir: "data/rag_results"
-chunk_size: 300
+index_dir: "data/rag_results/index"
+min_length: 100
+chunk_size: 150
 chunk_overlap: 20
 model_id: "nlpai-lab/KURE-v1"
 top_k: 5
@@ -10,5 +11,7 @@ retriever_type: "dense" # dense, hybrid, bm25
 hybrid_alpha: 0.5
 context_text: "[관련 정보]"
 context_field: "retrieved_context"
-
+index_name: "index.faiss"
+corpus_name: "corpus.json"
+batch_size: 32
 

@@ -4,6 +4,8 @@ from dataclasses import field, dataclass
 class RAGConfig:
     source_files: list[str] = field(default_factory=lambda: ["data/rag/corpus.pdf"])
     output_dir: str = "data/rag_results"
+    index_dir: str = "data/rag_results/index"
+    min_length: int = 100
     chunk_size: int = 300
     chunk_overlap: int = 20
     model_id: str = "nlpai-lab/KURE-v1"
@@ -12,4 +14,7 @@ class RAGConfig:
     hybrid_alpha: int|float = 0.5
     context_text: str = "[관련 정보]"
     context_field: str = "retrieved_context"
+    index_name: str = "index.faiss"
+    corpus_name: str = "corpus.json"
+    batch_size: int = 32
 

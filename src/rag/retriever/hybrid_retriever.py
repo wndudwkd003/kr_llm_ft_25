@@ -1,8 +1,15 @@
-from .base_retriever import BaseRetriever
+from src.rag.retriever.base_retriever import BaseRetriever
+from src.rag.retriever.bm25_retriever import BM25Retriever
+from src.rag.retriever.dense_retriever import DenseRetriever
 from collections import defaultdict
 
 class HybridRetriever(BaseRetriever):
-    def __init__(self, bm25, dense, alpha=0.5):
+    def __init__(
+        self,
+        bm25: BM25Retriever,
+        dense: DenseRetriever,
+        alpha=0.5
+    ):
         self.bm25 = bm25
         self.dense = dense
         self.alpha = alpha

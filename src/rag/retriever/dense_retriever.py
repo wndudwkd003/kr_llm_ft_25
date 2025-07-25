@@ -1,17 +1,36 @@
-from sentence_transformers import SentenceTransformer
-import faiss
-import json
 import numpy as np
-from .base_retriever import BaseRetriever
+from src.rag.embedder import TextEmbedder
+from src.rag.vector_store import load_faiss_index
+from src.rag.retriever.base_retriever import BaseRetriever
+from src.configs.rag_config import RAGConfig
+
 
 class DenseRetriever(BaseRetriever):
-    def __init__(self, model_id: str, index_path: str):
-        self.model = SentenceTransformer(model_id)
-        self.index = faiss.read_index(index_path + "/index.faiss")
-        with open(index_path + "/corpus.json", "r", encoding="utf-8") as f:
-            self.corpus = json.load(f)
+    def __init__(
+        self,
+        rag_cfg: RAGConfig,
+    ):
+        self.batch_size = rag_cfg.batch_size
+        self.embedder = TextEmbedder(model_name=rag_cfg.model_id)
 
-    def retrieve(self, query: str, top_k: int) -> list[str]:
-        embedding = self.model.encode([query], convert_to_numpy=True, normalize_embeddings=True)
-        scores, indices = self.index.search(embedding, top_k)
-        return [self.corpus[i] for i in indices[0]]
+        self.index, self.corpus = load_faiss_index(
+            index_dir=rag_cfg.index_dir,
+            index_name=rag_cfg.index_name,
+            corpus_name=rag_cfg.corpus_name,
+        )
+
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 5
+    ) -> list[str]:
+        query_embedding = self.embedder.encode([query], self.batch_size)[0]
+
+        # D = distances, I = indices
+        D, I = self.index.search(np.array([query_embedding]), top_k)
+        return [self.corpus[i] for i in I[0]]
+
+    def retrieve_batch(self, queries: list[str], top_k: int = 5) -> list[list[str]]:
+        query_embeddings = self.embedder.encode(queries, self.batch_size)  # (B, D)
+        D, I = self.index.search(np.array(query_embeddings), top_k)
+        return [[self.corpus[i] for i in row] for row in I]

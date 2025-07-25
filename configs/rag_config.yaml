@@ -1,0 +1,12 @@
+source_dir: "data/raw"
+output_dir: "data/raw_rag"
+chunk_size: 300
+chunk_overlap: 20
+model_id: "nlpai-lab/KURE-v1"
+top_k: 5
+retriever_type: "dense" # dense, hybrid, bm25
+hybrid_alpha: 0.5
+context_text: "[관련 정보]"
+context_field: "retrieved_context"
+
+

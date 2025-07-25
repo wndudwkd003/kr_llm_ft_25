@@ -74,7 +74,8 @@ def make_chat(inp, prompt_version: PromptVersion):
     instruction = PromptManager.get_instruction_for_type(prompt_version, inp.get('question_type', ''))
 
     # 기타 정보 생성 (question과 question_type 제외)
-    other_info = {k: v for k, v in inp.items() if k not in ['question', 'question_type']}
+    # other_info = {k: v for k, v in inp.items() if k not in ['question', 'question_type']}
+    other_info = {k: v for k, v in inp.items() if k not in ['question']}
 
     # 기타 정보가 있는 경우에만 추가
     chat_parts = [instruction]

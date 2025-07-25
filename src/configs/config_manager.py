@@ -1,11 +1,12 @@
 import os, yaml, torch
-from dataclasses import is_dataclass, fields, asdict
+from dataclasses import is_dataclass, fields
 from typing import TypeVar, Any
 from src.configs.system_config import SystemConfig
 from src.configs.model_config import ModelConfig
 from src.configs.sft_config import SFTConfig
 from src.configs.lora_config import LoRAConfig
 from src.configs.dpo_config import DPOConfig
+from src.configs.rag_config import RAGConfig
 from src.data.prompt_manager import PromptVersion
 
 
@@ -71,6 +72,7 @@ class ConfigManager:
             'sft_config.yaml': (SFTConfig, 'sft'),
             'lora_config.yaml': (LoRAConfig, 'lora'),
             'dpo_config.yaml': (DPOConfig, 'dpo'),
+            'rag_config.yaml': (RAGConfig, 'rag'),
         }
 
         for filename, (config_class, name) in config_mapping.items():
@@ -159,6 +161,11 @@ class ConfigManager:
     def dpo(self) -> DPOConfig:
         """DPO 설정 빠른 접근"""
         return self.get_config('dpo')
+
+    @property
+    def rag(self) -> RAGConfig:
+        """RAG 설정 빠른 접근"""
+        return self.get_config('rag')
 
 class YAMLLoader:
     def load(self, yaml_path: str) -> dict[str, Any]:

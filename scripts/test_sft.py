@@ -5,12 +5,11 @@ import hashlib
 from tqdm.auto import tqdm
 from transformers import set_seed
 from datetime import datetime
-from src.train.sft_trainer import UnslothSFTTrainer
 from src.configs.config_manager import ConfigManager
-from src.utils.data_utils import prepare_test_dataset
 from src.data.dataset import make_chat, PROMPT
 from src.utils.path_utils import get_output_dir
 from src.utils.huggingface_utils import init_hub_env
+from src.utils.seed_utils import set_all_seeds
 
 CURRENT_TEST_TYPE = "sft"
 
@@ -125,5 +124,6 @@ if __name__ == "__main__":
     config_manager.update_config("sft", {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
     set_seed(config_manager.system.seed)
+    set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
 
     main(config_manager)

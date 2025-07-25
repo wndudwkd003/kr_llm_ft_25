@@ -5,6 +5,7 @@ from src.configs.system_config import SystemConfig
 from src.configs.model_config import ModelConfig
 from src.configs.sft_config import SFTConfig
 from src.configs.lora_config import LoRAConfig
+from src.configs.dpo_config import DPOConfig
 
 
 T = TypeVar('T')
@@ -68,6 +69,7 @@ class ConfigManager:
             'model_config.yaml': (ModelConfig, 'model'),
             'sft_config.yaml': (SFTConfig, 'sft'),
             'lora_config.yaml': (LoRAConfig, 'lora'),
+            'dpo_config.yaml': (DPOConfig, 'dpo'),
         }
 
         for filename, (config_class, name) in config_mapping.items():
@@ -151,7 +153,11 @@ class ConfigManager:
     def lora(self) -> LoRAConfig:
         """LoRA 설정 빠른 접근"""
         return self.get_config('lora')
-
+    
+    @property
+    def dpo(self) -> DPOConfig:
+        """DPO 설정 빠른 접근"""
+        return self.get_config('dpo')
 
 class YAMLLoader:
     def load(self, yaml_path: str) -> dict[str, Any]:

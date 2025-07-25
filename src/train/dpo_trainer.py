@@ -100,6 +100,14 @@ class UnslothDPOTrainer(BaseTrainer):
             args=training_args,
         )
 
+        """
+
+        RuntimeError: Triton Error [CUDA]: device-side assert triggered
+
+        에러 발생하는거 해결해야 함
+
+        """
+
         trainer_stats = self.trainer.train()
         return trainer_stats
 

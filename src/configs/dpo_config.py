@@ -33,6 +33,7 @@ class DPOConfig:
     optim: str = "adamw_torch" # "adamw_torch" is default, adamw_hf or "adamw_8bit" or "paged_adamw_8bit"
     seed: int = 42
     push_to_hub: bool = False
+    padding_value: int = -100  # padding value for loss calculation
 
     # dpo parameters
     # padding_value: int = "tokenizer.pad_token_id"

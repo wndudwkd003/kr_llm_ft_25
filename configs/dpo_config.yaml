@@ -57,6 +57,7 @@ optim: "adamw_torch"  # "adamw_torch", "adamw_hf", "adamw_8bit", "paged_adamw_8b
 
 # 허브에 푸시 설정
 push_to_hub: false
+padding_value: -100  # 패딩 값 설정, -100은 일반적으로 손실 계산에서 무시됨
 
 # DPO 하이퍼파라미터
 # padding_value: "tokenizer.pad_token_id"

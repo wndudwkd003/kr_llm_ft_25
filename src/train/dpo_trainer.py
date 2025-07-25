@@ -1,11 +1,11 @@
 import os
 from unsloth import FastLanguageModel
-from trl import DPOTrainer
+from trl import DPOTrainer, DPOConfig
 from transformers import TrainingArguments, EarlyStoppingCallback
 from src.train.base_trainer import BaseTrainer
 from dataclasses import asdict
 from datasets import Dataset as HFDataset
-
+from peft import PeftModel
 
 
 class UnslothDPOTrainer(BaseTrainer):
@@ -29,16 +29,35 @@ class UnslothDPOTrainer(BaseTrainer):
 
         if os.path.exists(sft_adapter_dir):
             print(f"Merging SFT adapter from {sft_adapter_dir}")
+            # 1. SFT 어댑터 로드
+            # self.model.load_adapter(sft_adapter_dir)
 
-            # 1. SFT 어댑터 로드 및 병합
-            self.model = FastLanguageModel.get_peft_model(
+            peft_model = PeftModel.from_pretrained(
                 self.model,
-                adapter_name=f"sft_adapter_{sft_adapter_dir[:5]}",
+                sft_adapter_dir,
                 is_trainable=False,
             )
 
-            # 2. 어댑터를 기본 모델에 병합
-            self.model = self.model.merge_and_unload()
+            merged_model = peft_model.merge_and_unload()
+
+            merged_dir = os.path.join(sft_adapter_dir, "merged")
+            os.makedirs(merged_dir, exist_ok=True)
+
+            merged_model.save_pretrained(merged_dir)
+            self.tokenizer.save_pretrained(merged_dir)
+            print(f"[DPO] SFT adapter merged & saved at: {merged_dir}")
+
+            # 2) merge된 가중치를 다시 불러와 DPO용 fresh LoRA를 붙인다
+            self.model, self.tokenizer = FastLanguageModel.from_pretrained(
+                merged_dir,
+                max_seq_length=self.cm.model.max_seq_length,
+                dtype=self.cm.model.dtype,
+                load_in_4bit=False,
+                load_in_8bit=False,
+                full_finetuning=False,
+            )
+
+            self.tokenizer_setup()
             print("SFT adapter merged successfully")
 
         # DPO를 위한 새로운 LoRA 어댑터 추가
@@ -58,7 +77,7 @@ class UnslothDPOTrainer(BaseTrainer):
 
     def train(self, train_dataset: HFDataset, eval_dataset: HFDataset):
         dpo_dict = asdict(self.cm.dpo)
-        training_args = TrainingArguments(**dpo_dict)
+        training_args = DPOConfig(**dpo_dict)
 
         callbacks = [EarlyStoppingCallback(
             early_stopping_patience=self.cm.model.early_stopping,

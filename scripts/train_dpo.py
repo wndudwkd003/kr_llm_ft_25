@@ -33,7 +33,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # 설정 관리자 초기화
-    config_manager = init_config_manager(path=args.path, train_type=CURRENT_TRAIN_TYPE)
+    config_manager = init_config_manager(dir=args.path, train_type=CURRENT_TRAIN_TYPE)
     config_manager.update_config(CURRENT_TRAIN_TYPE, {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
 

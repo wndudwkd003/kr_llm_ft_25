@@ -238,17 +238,26 @@ class TypeConverter:
 
         return result
 
-def init_config_manager(config_dir: str = "configs", train_type: str = "dpo") -> ConfigManager:
+def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> ConfigManager:
     config_manager = ConfigManager()
+
+    config_dir = dir
+    if train_type == "dpo":
+        config_dir = os.path.join(config_dir, "configs")
+
     config_manager.load_all_configs(config_dir=config_dir)
+
+    if train_type == "dpo":
+        config_manager.update_config("system", {"sft_model_for_dpo": dir})
+        base_path = config_manager.dpo.output_dir
+    elif train_type == "sft":
+        base_path = config_manager.sft.output_dir
 
     # RAG 설정을 켰는데 데이터 디렉토리가 rag_results가 아닌경우 자동으로 설정
     if config_manager.rag.use_rag and os.path.basename(config_manager.system.data_raw_dir) != "rag_results":
         print("RAG 설정이 켜져있습니다. 데이터 디렉토리를 자동으로 변경합니다.")
         config_manager.update_config("system", {"data_raw_dir": "data/rag_results"})
         print(f"Current data_raw_dir: {config_manager.system.data_raw_dir}")
-
-    base_path = config_manager.sft.output_dir
 
     essential = dict(
         model_id = config_manager.model.model_id,

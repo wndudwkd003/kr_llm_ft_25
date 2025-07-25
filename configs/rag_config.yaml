@@ -1,5 +1,7 @@
-source_dir: "data/raw"
-output_dir: "data/raw_rag"
+source_files:
+  - "data/rag/corpus.pdf"
+extension: "pdf"
+output_dir: "data/rag_results"
 chunk_size: 300
 chunk_overlap: 20
 model_id: "nlpai-lab/KURE-v1"

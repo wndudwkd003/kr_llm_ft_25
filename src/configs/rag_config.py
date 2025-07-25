@@ -2,8 +2,8 @@ from dataclasses import field, dataclass
 
 @dataclass
 class RAGConfig:
-    source_dir: str = "data/raw"
-    output_dir: str = "data/raw_rag"
+    source_files: list[str] = field(default_factory=lambda: ["data/rag/corpus.pdf"])
+    output_dir: str = "data/rag_results"
     chunk_size: int = 300
     chunk_overlap: int = 20
     model_id: str = "nlpai-lab/KURE-v1"

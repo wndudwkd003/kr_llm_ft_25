@@ -1,11 +1,12 @@
 from transformers import set_seed
 from src.utils.seed_utils import set_all_seeds
-from src.rag.retriever_factory import build_retriever
+# from src.rag.retriever_factory import build_retriever
 from src.configs.config_manager import ConfigManager
 from src.utils.huggingface_utils import init_hub_env
 from tqdm.auto import tqdm
 from argparse import ArgumentParser
 import os, json
+from src.utils.pdf_parser import extract_pdf
 
 
 
@@ -32,25 +33,31 @@ def main(config_manager: ConfigManager):
     # RAG 증강 실행
     rag_cfg = config_manager.rag
 
-    retriever = build_retriever(rag_cfg)
 
-    for split in ["train", "dev", "test"]:
-        input_path = os.path.join(rag_cfg.source_dir, f"{split}.json")
-        output_path = os.path.join(rag_cfg.output_dir, f"{split}.json")
 
-        if not os.path.exists(input_path):
-            print(f"[!] Skipping: {input_path} (not found)")
-            continue
+    corpus_files = rag_cfg.source_files
+    extract_pdf(corpus_files)
 
-        augment_dataset_with_rag(
-            input_path=input_path,
-            output_path=output_path,
-            retriever=retriever,
-            top_k=rag_cfg.top_k,
-            context_field=rag_cfg.context_field
-        )
 
-    print("RAG augmentation completed successfully.")
+    # retriever = build_retriever(rag_cfg)
+
+    # for split in ["train", "dev", "test"]:
+    #     input_path = os.path.join(rag_cfg.source_dir, f"{split}.json")
+    #     output_path = os.path.join(rag_cfg.output_dir, f"{split}.json")
+
+    #     if not os.path.exists(input_path):
+    #         print(f"[!] Skipping: {input_path} (not found)")
+    #         continue
+
+    #     augment_dataset_with_rag(
+    #         input_path=input_path,
+    #         output_path=output_path,
+    #         retriever=retriever,
+    #         top_k=rag_cfg.top_k,
+    #         context_field=rag_cfg.context_field
+    #     )
+
+    # print("RAG augmentation completed successfully.")
 
 
 if __name__ == "__main__":

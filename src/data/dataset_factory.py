@@ -14,12 +14,13 @@ class DatasetFactory:
         dataset_type: str,
         fname: str,
         tokenizer,
-        prompt_version: PromptVersion = PromptVersion.V1
+        prompt_version: PromptVersion = PromptVersion.V1,
+        data_question_length_limit: int = 512
     ):
         """데이터셋 생성"""
         dataset_class = cls.DATASET_TYPES.get(dataset_type.lower())
         if not dataset_class:
             raise ValueError(f"Unknown dataset type: {dataset_type}")
 
-        return dataset_class(fname, tokenizer, prompt_version)
+        return dataset_class(fname, tokenizer, prompt_version, data_question_length_limit)
 

@@ -8,12 +8,14 @@ class BaseDataset(ABC):
         self,
         fname: str,
         tokenizer,
-        prompt_version: PromptVersion = PromptVersion.V0
+        prompt_version: PromptVersion = PromptVersion.V0,
+        data_question_length_limit: int = 512
     ):
         self.fname = fname
         self.tokenizer = tokenizer
         self.prompt_version = prompt_version
         self.IGNORE_INDEX = -100
+        self.data_question_length_limit = data_question_length_limit
 
         # 데이터 저장용
         self.inp = []

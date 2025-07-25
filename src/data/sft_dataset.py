@@ -6,6 +6,14 @@ DEBUG = False
 
 class SFTDataset(BaseDataset):
     def process_example(self, example):
+        # 질문 길이 제한 적용
+        question_text = example.get("input", {}).get("question", "")
+        question_len = len(question_text.replace(" ", ""))  # 공백 제외
+
+        if question_len > self.data_question_length_limit:
+            print(f"Skipping example due to question length: {question_len} > {self.data_question_length_limit}")
+            return None
+
         # 시스템 프롬프트 가져오기
         system_prompt = PromptManager.get_system_prompt(self.prompt_version)
 

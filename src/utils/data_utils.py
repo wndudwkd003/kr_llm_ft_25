@@ -13,14 +13,16 @@ def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "
         dataset_type=task_type,
         fname=os.path.join(config_manager.system.data_raw_dir, "train.json"),
         tokenizer=tokenizer,
-        prompt_version=prompt_version
+        prompt_version=prompt_version,
+        data_question_length_limit=config_manager.system.data_question_length_limit
     )
 
     eval_dataset = DatasetFactory.create_dataset(
         dataset_type=task_type,
         fname=os.path.join(config_manager.system.data_raw_dir, "dev.json"),
         tokenizer=tokenizer,
-        prompt_version=prompt_version
+        prompt_version=prompt_version,
+        data_question_length_limit=config_manager.system.data_question_length_limit
     )
 
     return train_dataset, eval_dataset

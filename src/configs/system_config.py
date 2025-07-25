@@ -13,6 +13,7 @@ class SystemConfig:
     data_rag_dir: str = "data/rag"
 
     prompt_version: PromptVersion = PromptVersion.V1
+    data_question_length_limit: int = 500
 
     # only inference
     save_dir: str = "" # if will be set by the function

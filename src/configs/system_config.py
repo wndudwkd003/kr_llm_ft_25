@@ -6,6 +6,7 @@ class SystemConfig:
     is_train: bool = True
     additional_info: str = "" # it will be concatenated to other configs
     seed: int = 42
+    deterministic: bool = True
     hf_token: str = "" # it will be set by the function
     use_lora: bool = True
     use_qlora: bool = False
@@ -14,6 +15,7 @@ class SystemConfig:
 
     prompt_version: PromptVersion = PromptVersion.V1
     data_question_length_limit: int = 500
+    data_shuffle: bool = False
 
     # only inference
     save_dir: str = "" # if will be set by the function

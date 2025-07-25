@@ -1,6 +1,7 @@
 is_train: true
 additional_info: "task 3 데이터 세트 병합 및 증강"
 seed: 42
+deterministic: true
 hf_token: ""
 use_lora: true
 use_qlora: false
@@ -8,6 +9,7 @@ data_raw_dir: "data/other/task_3_merged_1-3_c1"
 data_rag_dir: "data/rag"
 prompt_version: "task3"
 data_question_length_limit: 1000
+data_shuffle: true
 
 
 # only test

@@ -1,4 +1,4 @@
-import json, torch
+import json, torch, random
 from typing import Any
 from abc import ABC, abstractmethod
 from src.data.prompt_manager import PromptVersion, PromptManager
@@ -9,13 +9,15 @@ class BaseDataset(ABC):
         fname: str,
         tokenizer,
         prompt_version: PromptVersion = PromptVersion.V0,
-        data_question_length_limit: int = 512
+        data_question_length_limit: int = 512,
+        data_shuffle: bool = False
     ):
         self.fname = fname
         self.tokenizer = tokenizer
         self.prompt_version = prompt_version
         self.IGNORE_INDEX = -100
         self.data_question_length_limit = data_question_length_limit
+        self.data_shuffle = data_shuffle
 
         # 데이터 저장용
         self.inp = []
@@ -29,12 +31,16 @@ class BaseDataset(ABC):
         with open(self.fname, "r") as f:
             data = json.load(f)
 
+            if self.data_shuffle:
+                print(f"Shuffling data... {len(data)} examples")
+                random.shuffle(data)
+                print("Data shuffled.")
+
         for example in data:
             processed_example = self.process_example(example)
             if processed_example:  # None이 아닌 경우만 추가
                 self.inp.append(processed_example["input_ids"])
                 self.label.append(processed_example["labels"])
-
 
     @abstractmethod
     def process_example(
@@ -60,9 +66,6 @@ class BaseDataset(ABC):
             "input_ids": self.inp[idx],
             "labels": self.label[idx],
         }
-
-
-
 
 def make_chat(inp, prompt_version: PromptVersion):
     """입력 데이터를 채팅 형식으로 변환하는 함수 (버전별 프롬프트 적용)"""

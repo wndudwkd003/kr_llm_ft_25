@@ -6,6 +6,7 @@ from src.utils.data_utils import prepare_dataset
 from src.utils.path_utils import get_output_dir
 from src.utils.huggingface_utils import init_hub_env
 from transformers import set_seed
+from src.utils.seed_utils import set_all_seeds
 
 
 CURRENT_TRAIN_TYPE = "sft"
@@ -51,7 +52,9 @@ if __name__ == "__main__":
     config_manager = init_config_manager(config_dir=args.config, train_type=CURRENT_TRAIN_TYPE)
     config_manager.update_config("sft", {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
+
     set_seed(config_manager.system.seed)
+    set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
 
     # 메인 함수 실행
     main(config_manager)

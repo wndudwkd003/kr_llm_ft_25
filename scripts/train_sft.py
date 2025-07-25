@@ -1,12 +1,13 @@
 import unsloth
 import os, json, argparse
-from transformers import set_seed
 from src.train.sft_trainer import UnslothSFTTrainer
 from src.configs.config_manager import ConfigManager
 from src.utils.data_utils import prepare_dataset
-from src.data.sft_dataset import SFTDataset
 from src.utils.path_utils import get_output_dir
 from src.utils.huggingface_utils import init_hub_env
+from transformers import set_seed
+from src.utils.seed_utils import set_all_seeds
+
 
 CURRENT_TRAIN_TYPE = "sft"
 
@@ -26,14 +27,14 @@ def save_metrics(metrics, output_dir):
         json.dump(metrics, f, indent=4)
     print(f"Metrics saved to {metrics_file}")
 
-def main():
+def main(config_manager: ConfigManager):
     # SFT 트레이너 초기화
     trainer = UnslothSFTTrainer(config_manager)
 
     train_dataset, eval_dataset = prepare_dataset(
         config_manager=config_manager,
         tokenizer=trainer.tokenizer,
-        data_class=SFTDataset
+        task_type=CURRENT_TRAIN_TYPE,
     )
 
     metrics = trainer.train(train_dataset, eval_dataset)
@@ -51,6 +52,9 @@ if __name__ == "__main__":
     config_manager = init_config_manager(config_dir=args.config, train_type=CURRENT_TRAIN_TYPE)
     config_manager.update_config("sft", {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
-    set_seed(config_manager.system.seed)
 
-    main()
+    set_seed(config_manager.system.seed)
+    set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
+
+    # 메인 함수 실행
+    main(config_manager)

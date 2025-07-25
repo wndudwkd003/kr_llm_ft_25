@@ -11,13 +11,7 @@ CURRENT_TRAIN_TYPE = "dpo"
 
 def init_config_manager(path: str = "path", train_type: str = "dpo") -> ConfigManager:
     config_manager = ConfigManager()
-
-    print(path)
     config_dir = os.path.join(path, "configs")
-    lora_adapter_dir = os.path.join(path, "lora_adapter")
-    print(config_dir)
-    print(lora_adapter_dir)
-    exit()
 
     config_manager.load_all_configs(config_dir=config_dir)
     output_dir = get_output_dir(config_manager, train_type=train_type)
@@ -36,11 +30,12 @@ def save_metrics(metrics, output_dir):
 def main():
     # DPO 트레이너 초기화
     trainer = UnslothDPOTrainer(config_manager)
+    trainer.setup_model()
 
     train_dataset, eval_dataset = prepare_dataset(
         config_manager=config_manager,
         tokenizer=trainer.tokenizer,
-        data_class=DPODataset
+        task_type=CURRENT_TRAIN_TYPE
     )
 
     metrics = trainer.train(train_dataset, eval_dataset)

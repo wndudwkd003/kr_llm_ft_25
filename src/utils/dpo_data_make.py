@@ -7,8 +7,8 @@ KURE 임베딩으로 가장 유사한 다른 answer를 찾아 rejected로 저장
 
 사용 예:
     python src/utils/dpo_data_make.py \
-        --input data/raw/train.json \
-        --output data/processed/pair_list.json \
+        --input data/raw/dev.json \
+        --output data/processed/dev_dpo.json \
         --model nlpai-lab/KURE-v1 \
         --top_k 5 \
         --sim_threshold 0.60 \

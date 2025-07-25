@@ -35,7 +35,11 @@ class DPOConfig:
     push_to_hub: bool = False
 
     # dpo parameters
-    model_path: str = "output/2025-07-24_20-06-25_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft"
+    padding_value: int = "tokenizer.pad_token_id"
+    model_init_kwargs: dict = field(default_factory=dict)
+    ref_model_init_kwargs: dict | None = None
+
+    dpo_model_path: str = "output/2025-07-24_20-06-25_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft"
     beta: float = 0.1
     loss_type: str = "sigmoid"
     label_smoothing: float = 0.0

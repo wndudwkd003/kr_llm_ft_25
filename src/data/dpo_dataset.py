@@ -62,7 +62,7 @@ class DPODataset(Dataset):
         self.max_length = max_length
         self.add_system_prompt = add_system_prompt
         self.use_chat_template = use_chat_template
-        self.eos_token = eos_token or tokenizer.eos_token
+        self.eos_token = eos_token #or tokenizer.eos_token
 
         # 파일 로딩
         if fname.endswith(".jsonl"):
@@ -136,12 +136,15 @@ class DataCollatorForDPODataset:
     """
     DPOTrainer에서 요구하는 데이터 콜레이터.
     """
-    def __init__(self, tokenizer, max_length=None, pad_multiple=8):
+    def __init__(self, tokenizer, max_length=None, pad_to_multiple_of=8):
         self.tok = tokenizer
         self.max_length = max_length
-        self.pad_multiple = pad_multiple
+        self.pad_multiple = pad_to_multiple_of
 
     def __call__(self, features):
+        print("###############")
+        print(features[:5])
+        exit()
         prompts   = [f["prompt"]   for f in features]
         chosens   = [f["chosen"]   for f in features]
         rejecteds = [f["rejected"] for f in features]

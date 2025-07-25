@@ -69,7 +69,10 @@ from torch.utils.data import Dataset
 from src.data.dpo_dataset import DPODataset
 from src.configs.config_manager import ConfigManager
 from src.data.dpo_dataset import DataCollatorForDPODataset
+from dataclasses import asdict
 
+from peft import PeftModel   
+from datasets import Dataset as HFDataset
 
 class UnslothDPOTrainer:
     """Unsloth + TRL DPO 학습 래퍼 클래스."""
@@ -101,46 +104,92 @@ class UnslothDPOTrainer:
         self.tokenizer.padding_side = "right"
 
         # LoRA 적용
-        self.model = FastLanguageModel.get_peft_model(
+        lora_adapter_dir = os.path.join(self.cm.dpo.dpo_model_path, "lora_adapter")
+
+        self.model = PeftModel.from_pretrained(
             self.model,
-            r=self.cm.lora.r,
-            target_modules=self.cm.lora.target_modules,
-            lora_alpha=self.cm.lora.lora_alpha,
-            lora_dropout=self.cm.lora.lora_dropout,
-            bias=self.cm.lora.bias,
-            random_state=self.cm.system.seed,
+            model_id=lora_adapter_dir,
+            is_trainable=True,  # DPO 단계에서 LoRA 파라미터를 다시 학습
         )
+
+        print(f"[INFO] Loaded pretrained LoRA from {lora_adapter_dir}")
 
     # ------------------------------------------------------------------
     # 2) 데이터셋 준비
     # ------------------------------------------------------------------
-    def prepare_dataset(self) -> Tuple[DPODataset, DPODataset]:
-        """train/dev DPO 데이터셋 로드.
-
-        Returns:
-            (train_dataset, eval_dataset)
-        """
+    def prepare_dataset(self) -> Tuple[HFDataset, HFDataset]:
         train_path = os.path.join(self.cm.system.data_raw_path, "train.json")
-        dev_path = os.path.join(self.cm.system.data_raw_path, "dev.json")
+        dev_path   = os.path.join(self.cm.system.data_raw_path, "dev.json")
 
-        train_dataset = DPODataset(
-            fname=train_path,
-            tokenizer=self.tokenizer,
-            max_length=self.cm.model.max_seq_length,
-        )
-        eval_dataset = DPODataset(
-            fname=dev_path,
-            tokenizer=self.tokenizer,
-            max_length=self.cm.model.max_seq_length,
-        )
-        return train_dataset, eval_dataset
+        # ① 기존 Torch‑style DPODataset 생성
+        torch_train = DPODataset(train_path, self.tokenizer, max_length=self.cm.model.max_seq_length)
+        torch_dev   = DPODataset(dev_path,  self.tokenizer, max_length=self.cm.model.max_seq_length)
+
+        # ② 리스트로 변환 후 🤗 Dataset 으로 래핑
+        train_hf = HFDataset.from_list(list(torch_train))
+        dev_hf   = HFDataset.from_list(list(torch_dev))
+
+        return train_hf, dev_hf
 
     # ------------------------------------------------------------------
     # 3) 학습 루틴
     # ------------------------------------------------------------------
     def train(self, train_dataset: DPODataset, eval_dataset: DPODataset):
         """DPOTrainer를 이용한 학습 수행."""
-        training_args = TrainingArguments(**self.cm.dpo)
+        dpo_cfg = asdict(self.cm.dpo)
+
+        dpo_only_keys = [
+            "dpo_model_path", "beta", "loss_type", "label_smoothing",
+            "reference_free", "precompute_ref_log_probs",
+            "max_length", "max_prompt_length", "max_target_length",
+            "padding_value", "model_init_kwargs", "ref_model_init_kwargs",
+            "generate_during_eval", "model_adapter_name", "ref_adapter_name",
+            "reference_free", "disable_dropout", "use_liger_loss",
+            "label_pad_token_id", "max_completion_length", "truncation_mode",
+            "use_logits_to_keep", "padding_free", "loss_type",
+            "beta", "use_weighting", "f_divergence_type",
+            "f_alpha_divergence_coef", "dataset_num_proc", "tools",
+            "sync_ref_model", "precompute_ref_batch_size"
+            
+        ]
+        dpo_kwargs = {k: dpo_cfg.pop(k) for k in dpo_only_keys if k in dpo_cfg}
+
+        # ── Unsloth가 요구하는 필드 기본값 테이블 ─────────────
+        unsloth_extra_defaults = dict(
+            padding_value            = self.tokenizer.pad_token_id,
+            model_init_kwargs        = {"dtype": self.cm.model.dtype},
+            ref_model_init_kwargs    = None,
+            generate_during_eval     = False,
+            model_adapter_name        = None,
+            ref_adapter_name          = None,
+            reference_free           = False,  # DPOTrainer가 지원하는 경우
+            disable_dropout          = False,  # DPOTrainer가 지원하는 경우
+            use_liger_loss           = False,  # DPOTrainer가 지원하는 경우
+            label_pad_token_id       = self.tokenizer.pad_token_id,
+            max_prompt_length        = self.cm.dpo.max_prompt_length,
+            max_completion_length    = self.cm.dpo.max_target_length,
+            max_length               = self.cm.model.max_seq_length,
+            truncation_mode          = "longest_first",  # DPOTrainer가 지원하는 경우
+            precompute_ref_log_probs = self.cm.dpo.precompute_ref_log_probs,
+            use_logits_to_keep       = False,  # DPOTrainer가 지원하는 경우
+            padding_free             = False,  # DPOTrainer가 지원하는 경우
+            loss_type                = "sigmoid",  # DPOTrainer가 지원하는 경우'
+            beta                     = 0.1,  # DPOTrainer가 지원하는 경우
+            label_smoothing          = 0.0,  # DPOTrainer가 지원하는 경우
+            use_weighting            = False,  # DPOTrainer가 지원하는 경우
+            f_divergence_type        = "kl",  # DPOTrainer가 지원하는 경우
+            f_alpha_divergence_coef  = 0.0,  # DPOTrainer가 지원하는 경우
+            dataset_num_proc         = 1,  # DPOTrainer가 지원하는 경우
+            tools                    = None,  # DPOTrainer가 지원하는 경우
+            sync_ref_model           = False,  # DPOTrainer가 지원하는 경우
+            precompute_ref_batch_size = 16,  # DPOTrainer가 지원하는 경우
+        )
+
+        # ── TrainingArguments 생성 후 누락된 필드 모두 주입 ────
+        training_args = TrainingArguments(**dpo_cfg)
+        for k, v in unsloth_extra_defaults.items():
+            if not hasattr(training_args, k):
+                setattr(training_args, k, dpo_kwargs.get(k, v))
 
         # TRL에서 제공하는 전용 Collator (label 토큰 분리 등)
         data_collator = DataCollatorForDPODataset(
@@ -158,10 +207,10 @@ class UnslothDPOTrainer:
             tokenizer=self.tokenizer,
             data_collator=data_collator,
             # dpo parameters
-            beta=self.cm.dpo.beta,
-            loss_type=self.cm.dpo.loss_type,
-            label_smoothing=self.cm.dpo.label_smoothing,
-            reference_free=self.cm.dpo.reference_free,
+            beta=dpo_kwargs.get("beta"),
+            loss_type=dpo_kwargs.get("loss_type"),
+            label_smoothing=dpo_kwargs.get("label_smoothing"),
+            reference_free=dpo_kwargs.get("reference_free"),
         )
 
         train_result = self.trainer.train()

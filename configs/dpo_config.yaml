@@ -1,11 +1,13 @@
 # 출력 디렉토리 - 실행 시 자동으로 변경됨
 output_dir: "output"
+seed: 42
 
 # 학습 에폭 수
 num_train_epochs: 5
+max_steps: -1 # -1은 전체 에폭 수에 따라 자동으로 계산됨, 디버깅 용도
 
 # 배치 크기 설정
-per_device_train_batch_size: 1
+per_device_train_batch_size: 2
 per_device_eval_batch_size: 1
 eval_accumulation_steps: 1
 gradient_accumulation_steps: 1  # GLOBAL_BATCH_SIZE // (per_device_train_batch_size * NUM_DEVICES)
@@ -57,7 +59,11 @@ optim: "adamw_torch"  # "adamw_torch", "adamw_hf", "adamw_8bit", "paged_adamw_8b
 push_to_hub: false
 
 # DPO 하이퍼파라미터
-model_path: "output/2025-07-24_20-06-25_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft"  # DPO 모델 경로
+padding_value: "tokenizer.pad_token_id"
+model_init_kwargs: {}
+ref_model_init_kwargs: {}
+
+dpo_model_path: "output/2025-07-24_20-06-25_kakaocorp_kanana-1.5-8b-base_r_128_ra_256_rd_0_sft"  # DPO 모델 경로
 beta: 0.1                 # DPO 온도 파라미터
 loss_type: "sigmoid"      # "sigmoid" | "ipo" | "hinge" | "kto_pair"
 label_smoothing: 0.0

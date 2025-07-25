@@ -1,10 +1,11 @@
 from src.data.sft_dataset import SFTDataset
+from src.data.dpo_dataset import DPODataset
 from src.data.prompt_manager import PromptVersion
 
 class DatasetFactory:
     DATASET_TYPES = {
         "sft": SFTDataset,
-        # "dpo": DPODataset,
+        "dpo": DPODataset,
         # "rag": RAGDataset,
     }
 

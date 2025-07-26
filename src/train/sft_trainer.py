@@ -1,4 +1,3 @@
-import os
 from unsloth import FastLanguageModel
 from trl import SFTTrainer
 from transformers import TrainingArguments, EarlyStoppingCallback
@@ -6,6 +5,7 @@ from src.train.base_trainer import BaseTrainer
 from src.data.sft_dataset import SFTDataset
 from src.data.dataset import DataCollatorForSupervisedDataset
 from dataclasses import asdict
+import os
 
 class UnslothSFTTrainer(BaseTrainer):
     def setup_model(self):
@@ -18,6 +18,7 @@ class UnslothSFTTrainer(BaseTrainer):
             full_finetuning=False,
         )
 
+
         self.tokenizer_setup()
         self.tokenizer.padding_side = "right"
 
@@ -29,7 +30,9 @@ class UnslothSFTTrainer(BaseTrainer):
             lora_dropout=self.cm.lora.lora_dropout,
             bias=self.cm.lora.bias,
             random_state=self.cm.system.seed,
+            init_lora_weights=self.cm.lora.init_lora_weights,
         )
+
 
         print(f"Model setup complete. Total parameters: {self.model.num_parameters():,}")
         print(f"Trainable parameters: {self.model.num_parameters(only_trainable=True):,}")

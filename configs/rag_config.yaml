@@ -1,5 +1,7 @@
 source_files:
-  - "data/rag/corpus.pdf"
+  - "data/other/kowikitext/kowikitext_20200920.dev"
+  - "data/other/kowikitext/kowikitext_20200920.test"
+  - "data/other/kowikitext/kowikitext_20200920.train"
 output_dir: "data/rag_results"
 index_dir: "data/rag_results/index"
 min_length: 100
@@ -14,5 +16,5 @@ context_field: "retrieved_context"
 index_name: "index.faiss"
 corpus_name: "corpus.json"
 batch_size: 32
-use_rag: true
+use_rag: false
 

@@ -53,6 +53,7 @@ class UnslothDPOTrainer(BaseTrainer):
             lora_dropout=self.cm.lora.lora_dropout,
             bias=self.cm.lora.bias,
             random_state=self.cm.system.seed,
+            init_lora_weights=self.cm.lora.init_lora_weights,
         )
 
         print_model_parameters(self.model, label="Merged DPO Model")

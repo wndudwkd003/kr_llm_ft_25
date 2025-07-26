@@ -21,7 +21,7 @@ logging_steps: 25
 
 # 학습률 및 스케줄러
 learning_rate: 2.0e-5
-weight_decay: 0.1
+weight_decay: 0.01
 warmup_ratio: 0.03
 lr_scheduler_type: "cosine_with_restarts"  # "linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"
 
@@ -35,8 +35,8 @@ report_to:
 # 또는 report_to: null  # None인 경우
 
 # 정밀도 설정
-fp16: true
-bf16: false
+fp16: false
+bf16: true
 
 # 기타 학습 설정
 # packing: false

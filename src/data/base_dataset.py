@@ -6,6 +6,13 @@ from src.data.prompt_manager import PromptVersion, PromptManager
 
 DEBUG = False  # 디버깅 모드 설정
 
+OTHER_INFO_MAP = {
+    "category": "카테고리",
+    "topic_keyword": "키워드",
+    "domain": "도메인",
+    "question_type": "질문유형",
+}
+
 class BaseDataset(ABC):
     def __init__(
         self,
@@ -87,6 +94,8 @@ def make_chat(
         info_list = ["[기타 정보]"]
         for key, value in other_info.items():
             if value is not None and value != "":
+                if config_manager.system.data_hangul_info and key in OTHER_INFO_MAP:
+                    key = OTHER_INFO_MAP[key]
                 info_list.append(f" {key}: {value}")
         chat_parts.append(" ".join(info_list))
 

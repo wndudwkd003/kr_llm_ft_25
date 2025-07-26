@@ -3,7 +3,6 @@ from transformers import set_seed
 from src.utils.seed_utils import set_all_seeds
 from src.train.dpo_trainer import UnslothDPOTrainer
 from src.utils.data_utils import prepare_dataset
-from src.utils.path_utils import get_output_dir
 from src.utils.huggingface_utils import init_hub_env
 from src.utils.metric_utils import save_metrics
 from src.configs.config_manager import ConfigManager, init_config_manager
@@ -37,7 +36,7 @@ if __name__ == "__main__":
     config_manager.update_config(CURRENT_TRAIN_TYPE, {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
 
-    set_seed(config_manager.system.seed)
+    set_seed(config_manager.system.seed, deterministic=config_manager.system.deterministic)
     set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
 
     # 메인 함수 실행

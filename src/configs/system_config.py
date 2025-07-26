@@ -12,6 +12,7 @@ class SystemConfig:
     use_qlora: bool = False
     data_raw_dir: str = "data/raw"
     data_rag_dir: str = "data/rag"
+    data_hangul_info: bool = True
 
     prompt_version: PromptVersion = PromptVersion.V1
     data_question_length_limit: int = 500

@@ -15,8 +15,8 @@ gradient_accumulation_steps: 1  # GLOBAL_BATCH_SIZE // (per_device_train_batch_s
 # 평가 및 저장 전략
 eval_strategy: "steps"  # "no", "epoch", "steps"
 save_strategy: "steps"  # "no", "epoch", "steps"
-eval_steps: 100 # 613 100
-save_steps: 100 # 613 100
+eval_steps: 600 # 613 100
+save_steps: 600 # 613 100
 logging_steps: 25
 
 # 학습률 및 스케줄러

@@ -1,14 +1,14 @@
 import os
-
-# Set environment variables for CUDA
-os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
-
 import random
 import numpy as np
 import torch
 
 def set_all_seeds(seed: int, deterministic: bool = True):
     os.environ["PYTHONHASHSEED"] = str(seed)
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+    os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+    # os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
+
     random.seed(seed)
     np.random.seed(seed)
 

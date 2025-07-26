@@ -264,6 +264,7 @@ def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> Config
         r=config_manager.lora.r,
         lora_alpha=config_manager.lora.lora_alpha,
         lora_dropout=config_manager.lora.lora_dropout,
+        dtype=config_manager.model.dtype,
     )
 
     output_dir = get_output_dir(base_path=base_path, essential=essential, train_type=train_type)

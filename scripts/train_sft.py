@@ -10,6 +10,8 @@ import argparse
 
 CURRENT_TRAIN_TYPE = "sft"
 
+
+
 def main(config_manager: ConfigManager):
     # SFT 트레이너 초기화
     trainer = UnslothSFTTrainer(config_manager)
@@ -36,7 +38,7 @@ if __name__ == "__main__":
     config_manager.update_config(CURRENT_TRAIN_TYPE, {"seed": config_manager.system.seed})
     init_hub_env(config_manager.system.hf_token)
 
-    set_seed(config_manager.system.seed, deterministic=True)
+    set_seed(config_manager.system.seed, deterministic=config_manager.system.deterministic)
     set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
 
     # 메인 함수 실행

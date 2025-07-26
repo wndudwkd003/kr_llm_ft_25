@@ -4,6 +4,8 @@ from src.data.base_dataset import BaseDataset, make_chat, check_limit_length
 
 DEBUG = False
 
+
+
 class SFTDataset(BaseDataset):
     def process_sample(self, sample):
         # 질문 길이 제한 적용

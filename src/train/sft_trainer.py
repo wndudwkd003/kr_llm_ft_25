@@ -18,7 +18,6 @@ class UnslothSFTTrainer(BaseTrainer):
             full_finetuning=False,
         )
 
-
         self.tokenizer_setup()
         self.tokenizer.padding_side = "right"
 
@@ -40,6 +39,10 @@ class UnslothSFTTrainer(BaseTrainer):
 
     def train(self, train_dataset: SFTDataset, eval_dataset: SFTDataset):
         sft_dict = asdict(self.cm.sft)
+        sft_dict.update({
+            "data_seed": self.cm.system.seed,
+        })
+
         training_args = TrainingArguments(**sft_dict)
 
         data_collator = DataCollatorForSupervisedDataset(

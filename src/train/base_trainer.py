@@ -40,3 +40,13 @@ class BaseTrainer(ABC):
     def save_adapter(self, save_path: str | None = None):
         """LoRA 어댑터를 저장하는 메서드"""
         pass
+
+
+
+
+def print_model_parameters(model, label=""):
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    print(f"[{label}] Total Parameters: {total_params:,}")
+    print(f"[{label}] Trainable Parameters: {trainable_params:,}")

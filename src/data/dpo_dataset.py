@@ -40,8 +40,10 @@ class DPODataset(BaseDataset):
         chosen_text += eos
         rejected_text += eos
 
-        return {
+        result = {
             "prompt": prompt_text,
             "chosen": chosen_text,
             "rejected": rejected_text,
         }
+
+        return result

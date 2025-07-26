@@ -15,9 +15,14 @@ class BaseTrainer(ABC):
         # if tokenizer pad token is None, set it to eos token
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
-            print("Pad token is set to EOS token.")
+            print("Pad token이 설정되지 않아 eos_token으로 대체했습니다.")
 
-        self.tokenizer.padding_side = "right"
+        if self.tokenizer.unk_token is None:
+            self.tokenizer.unk_token = self.tokenizer.eos_token
+            print("UNK token이 설정되지 않아 eos_token으로 대체했습니다.")
+
+        # if len(self.tokenizer) != self.model.get_input_embeddings().num_embeddings:
+        #     self.model.resize_token_embeddings(len(self.tokenizer))
 
 
     @abstractmethod

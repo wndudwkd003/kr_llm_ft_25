@@ -8,10 +8,7 @@ from datasets import Dataset as HFDataset
 
 T = TypeVar("T")
 
-def _ensure_hf(ds):
-    """torch Dataset → 🤗 Dataset 변환 (이미 HF면 그대로)"""
-    if hasattr(ds, "map"):          # HFDataset은 map/shuffle 메서드가 있음
-        return ds
+def convert_hf(ds):
     return HFDataset.from_list(list(ds))
 
 def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "sft"):
@@ -39,8 +36,8 @@ def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "
 
     if task_type.lower() == "dpo":
         print("Converting DPO dataset to Hugging Face format...")
-        train_dataset = _ensure_hf(train_dataset)
-        eval_dataset = _ensure_hf(eval_dataset)
+        train_dataset = convert_hf(train_dataset)
+        eval_dataset = convert_hf(eval_dataset)
 
     return train_dataset, eval_dataset
 
@@ -52,3 +49,4 @@ def prepare_test_dataset(config_manager: ConfigManager, tokenizer, data_class: t
     )
 
     return test_dataset
+

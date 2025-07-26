@@ -8,7 +8,6 @@ from datasets import Dataset as HFDataset
 from peft import PeftModel
 
 class UnslothDPOTrainer(BaseTrainer):
-
     def setup_model(self):
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=self.cm.model.model_id,

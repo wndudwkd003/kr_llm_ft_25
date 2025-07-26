@@ -19,6 +19,7 @@ class UnslothSFTTrainer(BaseTrainer):
         )
 
         self.tokenizer_setup()
+        self.tokenizer.padding_side = "right"
 
         self.model = FastLanguageModel.get_peft_model(
             self.model,

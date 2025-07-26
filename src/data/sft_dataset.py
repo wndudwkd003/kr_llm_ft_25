@@ -27,7 +27,6 @@ class SFTDataset(BaseDataset):
 
         if DEBUG: print(message)
 
-
         # 소스 토크나이즈
         source = self.tokenizer.apply_chat_template(
             message,

@@ -47,6 +47,9 @@ def main(cm: ConfigManager):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+    if tokenizer.unk_token is None:
+        tokenizer.unk_token = tokenizer.eos_token
+
     # 어댑터 로드
     model = FastLanguageModel.for_inference(model)
     model.load_adapter(cm.system.adapter_dir)
@@ -54,7 +57,6 @@ def main(cm: ConfigManager):
     # 테스트 데이터셋 로드
     with open(os.path.join(cm.system.data_raw_dir, "test.json"), "r", encoding="utf-8") as f:
         test_data = json.load(f)
-
 
     # 시스템 프롬프트 가져오기
     prompt_version = cm.system.prompt_version

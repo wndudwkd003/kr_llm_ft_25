@@ -269,6 +269,13 @@ def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> Config
 
     output_dir = get_output_dir(base_path=base_path, essential=essential, train_type=train_type)
     os.makedirs(output_dir, exist_ok=True)
-    config_manager.update_config(train_type, {"output_dir": output_dir, "logging_dir": os.path.join(output_dir, "logs")})
+
+    fp16 = config_manager.model.dtype == torch.float16
+    bf16 = config_manager.model.dtype == torch.bfloat16
+
+    config_manager.update_config(train_type, {
+        "output_dir": output_dir, "logging_dir": os.path.join(output_dir, "logs"),
+        "fp16": fp16, "bf16": bf16,
+    })
     config_manager.print_all_configs()
     return config_manager

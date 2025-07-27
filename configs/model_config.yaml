@@ -2,7 +2,7 @@
 # KANANA1_5_BASE_8B = "kakaocorp/kanana-1.5-8b-base"
 
 model_id: "kakaocorp/kanana-1.5-8b-base"
-dtype: "bf16"
+dtype: "fp16"
 # use_flash_attention: true
 
 # only train

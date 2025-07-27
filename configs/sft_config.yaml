@@ -35,8 +35,9 @@ report_to:
 # 또는 report_to: null  # None인 경우
 
 # 정밀도 설정
-fp16: false
-bf16: true
+# model_config.yaml에서 dtype 설정에 따라 자동으로 결정됨
+# fp16: false
+# bf16: false
 
 # 기타 학습 설정
 # packing: false

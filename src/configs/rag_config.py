@@ -3,11 +3,13 @@ from dataclasses import field, dataclass
 @dataclass
 class RAGConfig:
     source_files: list[str] = field(default_factory=lambda: ["data/rag/corpus.pdf"])
+    style: str = "kowiki"
     output_dir: str = "data/rag_results"
     index_dir: str = "data/rag_results/index"
-    min_length: int = 100
-    chunk_size: int = 300
-    chunk_overlap: int = 20
+    min_length: int = 50
+    chunk_size: int = 256
+    min_last_chunk_ratio: float = 0.2
+    chunk_overlap: int = 10
     model_id: str = "nlpai-lab/KURE-v1"
     top_k: int = 5
     retriever_type: str = "dense"

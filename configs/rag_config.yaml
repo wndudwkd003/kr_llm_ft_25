@@ -1,11 +1,11 @@
 source_files:
-  - "data/other/kowikitext/kowikitext_20200920.dev"
-  - "data/other/kowikitext/kowikitext_20200920.test"
-  - "data/other/kowikitext/kowikitext_20200920.train"
+  - "data/other/kowiki_2025"
+style: "kowiki"
 output_dir: "data/rag_results"
 index_dir: "data/rag_results/index"
 min_length: 100
 chunk_size: 150
+min_last_chunk_ratio: 0.2
 chunk_overlap: 20
 model_id: "nlpai-lab/KURE-v1"
 top_k: 3

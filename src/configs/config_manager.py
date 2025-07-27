@@ -211,7 +211,19 @@ class TypeConverter:
                         converted_data[field_name] = enum_member
                         break
 
-        return target_class(**converted_data)
+        # ===== 여기 추가 =====
+        # dataclass 필드 이름 가져오기
+        valid_fields = {f.name for f in fields(target_class)}
+
+        # 유효한 필드만 필터링
+        filtered_data = {}
+        for key, value in converted_data.items():
+            if key in valid_fields:
+                filtered_data[key] = value
+            else:
+                print(f"경고: '{key}' 필드는 {target_class.__name__}에 존재하지 않아 무시됩니다.")
+
+        return target_class(**filtered_data)  # converted_data 대신 filtered_data 사용
 
     def convert_to_dict(self, obj: Any) -> dict[str, Any]:
         if not is_dataclass(obj):

@@ -5,7 +5,7 @@ from glob import glob
 class WikiExtractor(TextExtractor):
     """위키 텍스트 추출기"""
 
-    def extract(self, source: str, min_length: int = 50) -> tuple[list[str], list[dict]]:
+    def extract(self, source: str) -> tuple[list[str], list[dict]]:
         """위키에서 텍스트와 title 추출"""
         texts = []
         metadata = []
@@ -27,9 +27,6 @@ class WikiExtractor(TextExtractor):
                         continue
 
                     cleaned_text = self.preprocess_text(text)
-
-                    if len(cleaned_text) < min_length:
-                        continue
 
                     texts.append(cleaned_text)
                     metadata.append({

@@ -19,7 +19,6 @@ def main(config: ConfigManager):
     extractor = ExtractorFactory.get_extractor(rag_cfg.style)
     texts, metadata = extractor.extract(
         rag_cfg.source_files,
-        rag_cfg.min_length
     )
 
     print(f"총 문단 수: {len(texts)}")

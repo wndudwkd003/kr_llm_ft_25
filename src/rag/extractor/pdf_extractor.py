@@ -6,7 +6,7 @@ import fitz
 class PDFExtractor(TextExtractor):
     """PDF 텍스트 추출기 - <제목 - 부제> 형식 파싱"""
 
-    def extract(self, source: str, min_length: int = 50) -> tuple[list[str], list[dict]]:
+    def extract(self, source: str) -> tuple[list[str], list[dict]]:
         """PDF에서 텍스트와 title 추출"""
         texts = []
         metadata = []
@@ -29,10 +29,6 @@ class PDFExtractor(TextExtractor):
             # 각 섹션 처리
             for title, content in sections:
                 cleaned_content = self.preprocess_text(content)
-
-                # 최소 길이 체크
-                if len(cleaned_content) < min_length:
-                    continue
 
                 texts.append(cleaned_content)
                 metadata.append({
@@ -79,9 +75,11 @@ class PDFExtractor(TextExtractor):
 
     def preprocess_text(self, text: str) -> str:
         """PDF 텍스트 전처리"""
-        # 특수문자 제거 (한글, 영문, 숫자, 일부 문장부호만 유지)
-        text = re.sub(r"[^가-힣a-zA-Z0-9.,!?~\"'\s]", "", text)
+        # 특수문자 제거 (한글, 영문, 숫자, 한자, 일본어, 일부 문장부호만 유지)
+        # 한자: \u4e00-\u9fff
+        # 일본어 히라가나: \u3040-\u309f
+        # 일본어 가타카나: \u30a0-\u30ff
+        text = re.sub(r"[^가-힣a-zA-Z0-9\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff.,!?~\"'\s]", "", text)
         # 공백 정리
         text = re.sub(r"\s+", " ", text).strip()
         return text
-

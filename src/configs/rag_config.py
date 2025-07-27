@@ -6,10 +6,9 @@ class RAGConfig:
     style: str = "kowiki"
     output_dir: str = "data/rag_results"
     index_dir: str = "data/rag_results/index"
-    min_length: int = 50
     chunk_size: int = 256
-    min_last_chunk_ratio: float = 0.2
     chunk_overlap: int = 10
+    min_last_chunk_ratio: float = 0.2
     model_id: str = "nlpai-lab/KURE-v1"
     top_k: int = 5
     retriever_type: str = "dense"

@@ -1,4 +1,4 @@
-import json, torch, random
+import json, torch, random, re
 from typing import Any
 from abc import ABC, abstractmethod
 from src.configs.config_manager import ConfigManager
@@ -58,10 +58,45 @@ class BaseDataset(ABC):
     ) -> dict[str, torch.Tensor]:
         pass
 
+def clean_retrieved_context(text):
+    """
+    검색된 컨텍스트에서 HTML 태그, 각주, 불필요한 문자들을 제거합니다.
+    """
+    if not text:
+        return text
+
+    # HTML 태그 제거 (단, <title>은 유지하되 태그만 제거)
+    # <title>content</title> -> title: content 형태로 변환
+    text = re.sub(r'<([^>]+?)>([^<]*?)</\1>', r'\1: \2', text)
+
+    # 남은 HTML 태그들 제거
+    text = re.sub(r'<[^>]*?>', '', text)
+
+    # 각주 관련 패턴 제거
+    text = re.sub(r'<templatestyles[^>]*?>', '', text)
+    text = re.sub(r'<includeonly>[^<]*?</includeonly>', '', text)
+    text = re.sub(r'각주\.\s*', '', text)
+
+    # 특수 문자나 의미없는 패턴 제거
+    text = re.sub(r'src\s*\"[^\"]*?\"', '', text)  # src="..." 제거
+    text = re.sub(r'\/styles\.css', '', text)  # /styles.css 제거
+
+    # 연속된 공백을 하나로 통일
+    text = re.sub(r'\s+', ' ', text)
+
+    # 앞뒤 공백 제거
+    text = text.strip()
+
+    return text
+
 
 def get_rag_context(sample: dict[str, Any], context_field: str = "retrieved_context", context_text="[관련 정보]") -> str:
     """RAG 사용 여부에 따라 context를 반환하는 함수. 예: [관련 정보] ~~~ """
-    return f"{context_text} {sample.get(context_field, "")}"
+    raw_context = sample.get(context_field, "")
+    # RAG 컨텍스트 정리
+    cleaned_context = clean_retrieved_context(raw_context)
+    return f"{context_text} {cleaned_context}" if cleaned_context else raw_context
+
 
 
 def make_chat(

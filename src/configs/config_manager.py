@@ -265,11 +265,11 @@ def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> Config
     elif train_type == "sft":
         base_path = config_manager.sft.output_dir
 
-    # RAG 설정을 켰는데 데이터 디렉토리가 rag_results가 아닌경우 자동으로 설정
-    if config_manager.rag.use_rag and os.path.basename(config_manager.system.data_raw_dir) != "rag_results":
-        print("RAG 설정이 켜져있습니다. 데이터 디렉토리를 자동으로 변경합니다.")
-        config_manager.update_config("system", {"data_raw_dir": "data/rag_results"})
-        print(f"Current data_raw_dir: {config_manager.system.data_raw_dir}")
+    # # RAG 설정을 켰는데 데이터 디렉토리가 rag_results가 아닌경우 자동으로 설정
+    # if config_manager.rag.use_rag and os.path.basename(config_manager.system.data_raw_dir) != "rag_results":
+    #     print("RAG 설정이 켜져있습니다. 데이터 디렉토리를 자동으로 변경합니다.")
+    #     config_manager.update_config("system", {"data_raw_dir": "data/rag_results"})
+    #     print(f"Current data_raw_dir: {config_manager.system.data_raw_dir}")
 
     essential = dict(
         model_id = config_manager.model.model_id,

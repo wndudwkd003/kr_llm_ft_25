@@ -1,6 +1,6 @@
 r: 128
-lora_alpha: 256
-lora_dropout: 0.2
+lora_alpha: 128
+lora_dropout: 0.0
 target_modules:
   - "q_proj"
   - "k_proj"

@@ -4,6 +4,7 @@ from src.configs.sft_config import SFTConfig
 from src.configs.lora_config import LoRAConfig
 from src.configs.dpo_config import DPOConfig
 from src.configs.rag_config import RAGConfig
+from src.configs.tune_config import TuneConfig
 from src.data.prompt_manager import PromptVersion
 from src.utils.path_utils import get_output_dir
 import os, yaml, torch
@@ -73,6 +74,7 @@ class ConfigManager:
             'lora_config.yaml': (LoRAConfig, 'lora'),
             'dpo_config.yaml': (DPOConfig, 'dpo'),
             'rag_config.yaml': (RAGConfig, 'rag'),
+            'tune_config.yaml': (TuneConfig, 'tune')
         }
 
         for filename, (config_class, name) in config_mapping.items():
@@ -265,11 +267,11 @@ def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> Config
     elif train_type == "sft":
         base_path = config_manager.sft.output_dir
 
-    # RAG 설정을 켰는데 데이터 디렉토리가 rag_results가 아닌경우 자동으로 설정
-    if config_manager.rag.use_rag and os.path.basename(config_manager.system.data_raw_dir) != "rag_results":
-        print("RAG 설정이 켜져있습니다. 데이터 디렉토리를 자동으로 변경합니다.")
-        config_manager.update_config("system", {"data_raw_dir": "data/rag_results"})
-        print(f"Current data_raw_dir: {config_manager.system.data_raw_dir}")
+    # # RAG 설정을 켰는데 데이터 디렉토리가 rag_results가 아닌경우 자동으로 설정
+    # if config_manager.rag.use_rag and os.path.basename(config_manager.system.data_raw_dir) != "rag_results":
+    #     print("RAG 설정이 켜져있습니다. 데이터 디렉토리를 자동으로 변경합니다.")
+    #     config_manager.update_config("system", {"data_raw_dir": "data/rag_results"})
+    #     print(f"Current data_raw_dir: {config_manager.system.data_raw_dir}")
 
     essential = dict(
         model_id = config_manager.model.model_id,

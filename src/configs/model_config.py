@@ -5,7 +5,7 @@ import torch
 class ModelConfig:
     model_id: str = ""
     dtype: str|torch.dtype = ""
-    max_seq_length: int = 4096
+    max_seq_length: int = 4096 # 4096 2048
 
     # only train
     early_stopping: int = 3

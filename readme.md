@@ -1,3 +1,22 @@
+## 증강
+### 옵션 설정
+1. configs/rag_config.yaml에서 source_files을 data/rag/corpus.pdf로 설정한다.
+2. output_dir를 data/rag_results로 설정한다.
+3. index_dir를 data/rag/index로 설정한다.
+4. 마지막으로 use_rag를 true로 설정한다.
+
+### 실행 순서
+1. 문서로부터 인덱스와 메타 데이터를 생성
+```
+run/run_build_index.sh
+```
+
+2. 생성된 인덱스와 메타데이터로부터 실제 데이터 세트를 검색 증강
+```
+run/run_augmentation_rag.sh
+```
+
+
 ## 도커 환경에서 실행하기
 
 ### 도커 이미지 불러오기

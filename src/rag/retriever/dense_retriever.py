@@ -28,9 +28,27 @@ class DenseRetriever(BaseRetriever):
 
         # D = distances, I = indices
         D, I = self.index.search(np.array([query_embedding]), top_k)
-        return [self.corpus[i] for i in I[0]]
+
+        retrieved_docs = []
+        for i in I[0]:
+            doc = self.corpus[i]
+            combined_text = f"<{doc['title']}> {doc['text']}"
+            retrieved_docs.append(combined_text)
+        return retrieved_docs
+
+
 
     def retrieve_batch(self, queries: list[str], top_k: int = 5) -> list[list[str]]:
         query_embeddings = self.embedder.encode(queries, self.batch_size)  # (B, D)
         D, I = self.index.search(np.array(query_embeddings), top_k)
-        return [[self.corpus[i] for i in row] for row in I]
+
+        batch_results = []
+        for row in I:  # 각 쿼리의 검색 결과
+            retrieved_docs = []
+            for i in row:  # 각 검색된 문서 인덱스
+                doc = self.corpus[i]
+                combined_text = f"<{doc['title']}> {doc['text']}"
+                retrieved_docs.append(combined_text)
+            batch_results.append(retrieved_docs)
+
+        return batch_results

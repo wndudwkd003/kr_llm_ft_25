@@ -1,37 +1,42 @@
 from src.rag.extractor.base_extractor import TextExtractor
 import re, json, os
 from glob import glob
+from tqdm.auto import tqdm
 
 class WikiExtractor(TextExtractor):
     """위키 텍스트 추출기"""
 
-    def extract(self, source: str) -> tuple[list[str], list[dict]]:
+    def extract(self, source) -> tuple[list[str], list[dict]]:
         """위키에서 텍스트와 title 추출"""
         texts = []
         metadata = []
 
-        wiki_files = glob(os.path.join(source, "**/wiki_*"), recursive=True)
+        # source가 리스트인지 확인하고 처리
+        if isinstance(source, list):
+            source_paths = source
+        else:
+            source_paths = [source]
 
-        for file_path in wiki_files:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    doc = json.loads(line)
-                    text = doc.get('text', '')
-                    title = doc.get('title', '')
-
-                    if not text or not title:
-                        continue
-
-                    cleaned_text = self.preprocess_text(text)
-
-                    texts.append(cleaned_text)
-                    metadata.append({
-                        'title': title
-                    })
+        # 각 소스 경로에 대해 파일 처리
+        for source_path in tqdm(source_paths, desc="Processing source files"):
+            wiki_files = glob(os.path.join(source_path, "**/wiki_*"), recursive=True)
+            for file_path in tqdm(wiki_files, desc=f"Processing {source_path}"):
+                # 기존 파일 처리 로직 그대로 유지
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        doc = json.loads(line)
+                        text = doc.get('text', '')
+                        title = doc.get('title', '')
+                        if not text or not title:
+                            continue
+                        cleaned_text = self.preprocess_text(text)
+                        texts.append(cleaned_text)
+                        metadata.append({
+                            'title': title
+                        })
 
         return texts, metadata
 

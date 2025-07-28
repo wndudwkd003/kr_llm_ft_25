@@ -3,6 +3,7 @@ output/
 src/configs/tokens/
 logs/
 output/
+output_backup/
 unsloth_compiled_cache/
 
 !src/data/

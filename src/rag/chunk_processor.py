@@ -1,3 +1,5 @@
+from tqdm.auto import tqdm
+
 def chunk_texts(
     texts: list[str],
     metadata: list[dict],
@@ -10,7 +12,8 @@ def chunk_texts(
     chunks = []
     chunk_metadata = []
 
-    for text, meta in zip(texts, metadata):
+    pair = zip(texts, metadata)
+    for text, meta in tqdm(pair, desc="Chunking texts"):
         title = meta['title']
         words = text.split()
 

@@ -1,7 +1,7 @@
 from src.rag.extractor.base_extractor import TextExtractor
 import re
 import fitz
-
+from tqdm.auto import tqdm
 
 class PDFExtractor(TextExtractor):
     """PDF 텍스트 추출기 - <제목 - 부제> 형식 파싱"""
@@ -27,7 +27,7 @@ class PDFExtractor(TextExtractor):
             sections = self._parse_sections(full_text)
 
             # 각 섹션 처리
-            for title, content in sections:
+            for title, content in tqdm(sections, desc=f"Processing {pdf_path}"):
                 cleaned_content = self.preprocess_text(content)
 
                 texts.append(cleaned_content)

@@ -1,8 +1,8 @@
 source_files:
   - "data/other/kowiki_2025"
-style: "kowiki"
-output_dir: "data/rag_results"
-index_dir: "data/rag_results/index"
+style: "kowiki" # pdf kowiki
+output_dir: "data/other/kowiki_2025_results"
+index_dir: "data/other/kowiki_2025_results/index"
 chunk_size: 150
 chunk_overlap: 20
 min_last_chunk_ratio: 0.2
@@ -15,5 +15,5 @@ context_field: "retrieved_context"
 index_name: "index.faiss"
 corpus_name: "corpus.json"
 batch_size: 32
-use_rag: false
+use_rag: true
 

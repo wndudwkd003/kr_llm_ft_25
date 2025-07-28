@@ -22,6 +22,9 @@ def prepare_dataset(config_manager: ConfigManager, tokenizer, task_type: str = "
         config_manager=config_manager,
     )
 
+    print("##########################################")
+    print("config_manager.system.data_raw_dir", config_manager.system.data_raw_dir)
+
     train_dataset = DatasetFactory.create_dataset(
         fname=os.path.join(config_manager.system.data_raw_dir, "train.json"),
         data_shuffle=config_manager.system.data_shuffle,

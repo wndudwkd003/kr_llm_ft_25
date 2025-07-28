@@ -42,6 +42,7 @@ class BaseDataset(ABC):
 
         for samples in data:
             processed = self.process_sample(samples)
+            print(f"Processed sample: {processed}")  # 디버깅용 출력
             if processed:
                 self.samples.append(processed)
 
@@ -61,7 +62,7 @@ class BaseDataset(ABC):
 
 def get_rag_context(sample: dict[str, Any], context_field: str = "retrieved_context", context_text="[관련 정보]") -> str:
     """RAG 사용 여부에 따라 context를 반환하는 함수. 예: [관련 정보] ~~~ """
-    return f"{context_text} {sample.get(context_field, "")}"
+    return f"{context_text} {sample.get(context_field, '')}"
 
 
 def make_chat(

@@ -1,11 +1,11 @@
 is_train: true
-additional_info: "과제 3"
+additional_info: "과제 1"
 seed: 42
 deterministic: true
 hf_token: ""
 use_lora: true
 use_qlora: false
-data_raw_dir: "data/other/task_3_merged_1-3" # rag 결과 디렉토리: data/rag_results, 일반 디렉토리: data/raw
+data_raw_dir: "data/raw" # rag 결과 디렉토리: data/rag_results, 일반 디렉토리: data/raw
 data_rag_dir: "data/rag"
 prompt_version: "task2_1"
 data_question_length_limit: -1 # 800 # -1 means no limit

@@ -1,6 +1,6 @@
 from src.rag.extractor.base_extractor import TextExtractor
 import re
-import fitz
+import pymupdf as fitz  # PyMuPDF
 from tqdm.auto import tqdm
 
 class PDFExtractor(TextExtractor):

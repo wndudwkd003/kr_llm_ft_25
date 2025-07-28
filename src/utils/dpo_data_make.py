@@ -6,8 +6,8 @@ KURE 임베딩으로 가장 유사한 다른 answer를 찾아 rejected로 저장
 - 어떤 경우에도 데이터셋에 없던 새로운 문장을 추가하지 않음.
 
 사용 예:
-    CUDA_VISIBLE_DEVICES=1 python src/utils/dpo_data_make.py \
-        --input data/raw/dev.json \
+    CUDA_VISIBLE_DEVICES=2 python src/utils/dpo_data_make.py \
+        --input data/rag/corpus_results/dev.json \
         --output data/processed/dev.json \
         --model nlpai-lab/KURE-v1 \
         --top_k 5 \

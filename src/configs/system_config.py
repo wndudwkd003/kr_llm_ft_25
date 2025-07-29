@@ -26,3 +26,4 @@ class SystemConfig:
     adapter_dir: str = "lora_adapter"
     test_result_dir: str = "test_results" # it will be set by the function
 
+    is_cot: bool = False

@@ -11,4 +11,5 @@ class LoRAConfig:
     init_lora_weights: str|bool = True
     use_dora: bool = False
     use_rslora: bool = False
+    use_qlora: bool = False
 

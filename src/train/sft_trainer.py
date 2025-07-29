@@ -13,9 +13,11 @@ class UnslothSFTTrainer(BaseTrainer):
             model_name=self.cm.model.model_id,
             max_seq_length=self.cm.model.max_seq_length,
             dtype=self.cm.model.dtype,
-            load_in_4bit=False,
+            load_in_4bit=True if self.cm.lora.use_qlora else False,
             load_in_8bit=False,
             full_finetuning=False,
+            # device_map="sequential",
+            trust_remote_code=True,
         )
 
         self.tokenizer_setup()
@@ -41,6 +43,8 @@ class UnslothSFTTrainer(BaseTrainer):
         sft_dict = asdict(self.cm.sft)
         sft_dict.update({
             "data_seed": self.cm.system.seed,
+            "dataloader_pin_memory": False,  # 다중GPU에서 권장
+            "ddp_find_unused_parameters": False,  # 성능 향상
         })
 
         training_args = TrainingArguments(**sft_dict)

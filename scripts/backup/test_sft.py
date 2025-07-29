@@ -2,7 +2,7 @@ import unsloth
 from transformers import set_seed
 from src.utils.seed_utils import set_all_seeds
 from unsloth import FastLanguageModel
-import os, json, argparse, hashlib, re
+import os, json, argparse, hashlib
 from src.configs.config_manager import ConfigManager
 from src.data.prompt_manager import PromptManager
 from src.data.base_dataset import make_chat
@@ -11,41 +11,6 @@ from tqdm.auto import tqdm
 from datetime import datetime
 
 CURRENT_TEST_TYPE = "sft"
-
-def parse_cot_answer(answer: str) -> dict:
-    """CoT 답변을 파싱하여 think와 answer 부분을 분리"""
-    result = {}
-
-    # think 태그 추출
-    think_pattern = r'<think>(.*?)</think>'
-    think_match = re.search(think_pattern, answer, re.DOTALL)
-
-    if think_match:
-        think_content = think_match.group(1)
-        # 양옆 \n 제거 및 중간 \n을 공백으로 변경
-        think_content = think_content.strip()
-        think_content = re.sub(r'\n+', ' ', think_content)
-        result["think"] = think_content
-    else:
-        result["think"] = ""
-
-    # answer 태그 추출
-    answer_pattern = r'<answer>(.*?)</answer>'
-    answer_match = re.search(answer_pattern, answer, re.DOTALL)
-
-    if answer_match:
-        answer_content = answer_match.group(1)
-        # 양옆 \n 제거 및 중간 \n을 공백으로 변경
-        answer_content = answer_content.strip()
-        answer_content = re.sub(r'\n+', ' ', answer_content)
-        result["answer"] = answer_content
-    else:
-        # answer 태그가 없으면 전체 텍스트에서 think 태그 부분만 제거
-        clean_answer = re.sub(think_pattern, '', answer, flags=re.DOTALL).strip()
-        clean_answer = re.sub(r'\n+', ' ', clean_answer)
-        result["answer"] = clean_answer
-
-    return result
 
 def init_config_manager_for_test(save_dir: str = "configs") -> ConfigManager:
     # 테스트 환경에서는 저장된 설정을 불러옴
@@ -140,17 +105,11 @@ def main(cm: ConfigManager):
         if "#" in answer:
             answer = answer.split("#")[0].strip()
 
-        # CoT 파싱 (is_cot가 True인 경우)
-        if cm.system.is_cot:
-            parsed_output = parse_cot_answer(answer)
-        else:
-            parsed_output = {"answer": answer}
-
         # 결과 저장
         results.append({
             "id": sample["id"],
             "input": sample["input"],
-            "output": parsed_output
+            "output": {"answer": answer}
         })
 
     # 결과 파일 저장

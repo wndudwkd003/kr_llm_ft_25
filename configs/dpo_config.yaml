@@ -59,6 +59,10 @@ optim: "adamw_torch"  # "adamw_torch", "adamw_hf", "adamw_8bit", "paged_adamw_8b
 push_to_hub: false
 padding_value: -100  # 패딩 값 설정, -100은 일반적으로 손실 계산에서 무시됨
 
+# gradient_checkpointing : true  # 메모리 절약을 위한 그래디언트 체크포인팅
+
+
+
 # DPO 하이퍼파라미터
 # padding_value: "tokenizer.pad_token_id"
 # model_init_kwargs: {}

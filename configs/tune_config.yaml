@@ -1,18 +1,9 @@
-# =============================================================================
-# Ray Tune 기본 설정
-# =============================================================================
+
 name: "llm_hyperparameter_tuning"
 num_samples: 50  # 총 실험 횟수
 max_concurrent_trials: 1  # 동시 실행할 트라이얼 수
 
-# 리소스 설정
-resources_per_trial:
-  cpu: 4
-  gpu: 1
 
-# =============================================================================
-# 스케줄러 설정
-# =============================================================================
 scheduler_type: "ASHA"  # "ASHA", "PBT", "BOHB", "MedianStopping"
 
 # ASHA 스케줄러 설정
@@ -24,20 +15,13 @@ asha_config:
   reduction_factor: 3
   brackets: 1
 
-# =============================================================================
-# 서치 알고리즘 설정
-# =============================================================================
-search_algorithm: "bayesian"  # "random", "grid", "bayesian", "hyperopt"
 
-# =============================================================================
-# 하이퍼파라미터 서치 스페이스 정의
-# =============================================================================
 
 # 학습률 관련
 learning_rate:
   type: "loguniform"
-  low: 1e-6
-  high: 1e-3
+  low: 1.0e-6
+  high: 1.0e-3
 
 warmup_ratio:
   type: "uniform"
@@ -76,7 +60,6 @@ lora_dropout:
   low: 0.0
   high: 0.3
 
-# 기존 fixed_params에서 target_modules 제거하고
 lora_target_modules:
   type: "choice"
   values:
@@ -85,30 +68,10 @@ lora_target_modules:
     - ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]  # 전체
     - ["gate_proj", "up_proj", "down_proj"]  # MLP만
 
-# =============================================================================
-# 고정 파라미터 (튜닝하지 않는 파라미터들)
-# =============================================================================
-fixed_params:
-  seed: 2025
-  num_train_epochs: 5
-  eval_strategy: "steps"
-  save_strategy: "steps"
-  logging_steps: 25
-  save_total_limit: 1
-  load_best_model_at_end: true
-  metric_for_best_model: "eval_loss"
-  greater_is_better: false
-  push_to_hub: false
-  optim: "adamw_torch"
-  bias: "none"
-  init_lora_weights: true
-  label_names: ["labels"]
 
-# =============================================================================
-# 출력 및 로깅 설정
-# =============================================================================
-output_dir: "./outputs/tune_results"
-local_dir: "./ray_results"
+
+output_dir: "output_tune/results"
+local_dir: "output_tune/samples"
 
 # 체크포인트 설정
 checkpoint_config:
@@ -116,26 +79,15 @@ checkpoint_config:
   checkpoint_freq: 1
   num_to_keep: 2
 
-# =============================================================================
-# 조기 중단 설정
-# =============================================================================
-early_stopping:
-  enabled: true
-  patience: 3
-  min_delta: 0.001
 
-# =============================================================================
-# 리포팅 설정
-# =============================================================================
+
 progress_reporter:
   metric_columns: ["eval_loss", "eval_accuracy", "training_iteration"]
   max_progress_rows: 20
   max_error_rows: 5
   max_column_length: 20
 
-# =============================================================================
-# 베스트 모델 선택 기준
-# =============================================================================
+
 best_model_selection:
   metric: "eval_loss"
   mode: "min"

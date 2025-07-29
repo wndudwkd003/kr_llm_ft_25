@@ -3,4 +3,4 @@
 # export HF_HOME=~/.cache/huggingface
 # export TRANSFORMERS_CACHE=~/.cache/huggingface
 
-CUDA_VISIBLE_DEVICES=3 python -m scripts.train_sft --config configs
+CUDA_VISIBLE_DEVICES=2 python -m scripts.train_sft --config configs

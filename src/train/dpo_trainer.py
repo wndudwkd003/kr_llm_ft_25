@@ -16,6 +16,7 @@ class UnslothDPOTrainer(BaseTrainer):
             load_in_4bit=False,
             load_in_8bit=False,
             full_finetuning=False,
+            device_map="auto",
         )
         print_model_parameters(self.model, label="Base Model")
 

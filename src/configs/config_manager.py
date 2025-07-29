@@ -169,6 +169,11 @@ class ConfigManager:
         """RAG 설정 빠른 접근"""
         return self.get_config('rag')
 
+    @property
+    def tune(self) -> TuneConfig:
+        """튜닝 설정 빠른 접근"""
+        return self.get_config('tune')
+
 class YAMLLoader:
     def load(self, yaml_path: str) -> dict[str, Any]:
         with open(yaml_path, 'r', encoding='utf-8') as file:
@@ -252,7 +257,7 @@ class TypeConverter:
 
         return result
 
-def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> ConfigManager:
+def init_config_manager(dir: str = "configs", train_type: str = "dpo", is_tune: bool = False) -> ConfigManager:
     config_manager = ConfigManager()
 
     config_dir = dir
@@ -282,7 +287,8 @@ def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> Config
     )
 
     output_dir = get_output_dir(base_path=base_path, essential=essential, train_type=train_type)
-    os.makedirs(output_dir, exist_ok=True)
+    if not is_tune:
+        os.makedirs(output_dir, exist_ok=True)
 
     fp16 = config_manager.model.dtype == torch.float16
     bf16 = config_manager.model.dtype == torch.bfloat16

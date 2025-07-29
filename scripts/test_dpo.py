@@ -10,6 +10,7 @@ from src.utils.huggingface_utils import init_hub_env
 from tqdm.auto import tqdm
 from datetime import datetime
 
+from peft import PeftModel
 
 """
 
@@ -20,13 +21,17 @@ from datetime import datetime
 """
 
 
-CURRENT_TEST_TYPE = "sft"
+CURRENT_TEST_TYPE = "dpo"
 
 def init_config_manager_for_test(save_dir: str = "configs") -> ConfigManager:
     # 테스트 환경에서는 저장된 설정을 불러옴
     cm = ConfigManager()
     config_dir = os.path.join(save_dir, "configs")
     cm.load_all_configs(config_dir=config_dir)
+
+    sft_model_for_dpo = cm.system.sft_model_for_dpo
+    sft_model_for_dpo = os.path.join(sft_model_for_dpo, cm.system.adapter_dir)
+
 
     adapter_dir = os.path.join(save_dir, "lora_adapter")
     test_result_dir = os.path.join(save_dir, "test_result")
@@ -36,7 +41,8 @@ def init_config_manager_for_test(save_dir: str = "configs") -> ConfigManager:
     cm.update_config("system", {
         "save_dir": save_dir,
         "adapter_dir": adapter_dir,
-        "test_result_dir": test_result_dir
+        "test_result_dir": test_result_dir,
+        "sft_model_for_dpo": sft_model_for_dpo,
     })
 
     cm.print_all_configs()
@@ -57,8 +63,17 @@ def main(cm: ConfigManager):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+
+    peft_model = PeftModel.from_pretrained(
+        model,
+        cm.system.sft_model_for_dpo,
+        is_trainable=False,
+    )
+    merged_model = peft_model.merge_and_unload()
+
+
     # 어댑터 로드
-    model = FastLanguageModel.for_inference(model)
+    model = FastLanguageModel.for_inference(merged_model)
     model.load_adapter(cm.system.adapter_dir)
 
     # 테스트 데이터셋 로드

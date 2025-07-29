@@ -1,6 +1,6 @@
-r: 128
-lora_alpha: 128
-lora_dropout: 0.0
+r: 64
+lora_alpha: 64
+lora_dropout: 0.21151
 target_modules:
   - "q_proj"
   - "k_proj"
@@ -13,4 +13,8 @@ bias: "none"
 init_lora_weights: true # "gaussian"
 use_dora: false
 use_rslora: false
+use_qlora: false
+
+
+
 

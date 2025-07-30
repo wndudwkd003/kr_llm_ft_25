@@ -70,12 +70,15 @@ def init_config_manager_for_test(save_dir: str = "configs") -> ConfigManager:
 
 def main(cm: ConfigManager):
     # 테스트 모드
+
+    model_path = cm.system.adapter_dir if cm.model.full_finetune else cm.model.model_id
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=cm.model.model_id,
+        model_name=model_path,
         max_seq_length=cm.model.max_seq_length,
         dtype=cm.model.dtype,
         load_in_4bit=False,
         load_in_8bit=False,
+        trust_remote_code=True
     )
 
     # padding token 설정
@@ -87,7 +90,9 @@ def main(cm: ConfigManager):
 
     # 어댑터 로드
     model = FastLanguageModel.for_inference(model)
-    model.load_adapter(cm.system.adapter_dir)
+
+    if not cm.model.full_finetune:
+        model.load_adapter(cm.system.adapter_dir)
 
     # 테스트 데이터셋 로드
     with open(os.path.join(cm.system.data_raw_dir, "test.json"), "r", encoding="utf-8") as f:

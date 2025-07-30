@@ -13,9 +13,9 @@ class UnslothSFTTrainer(BaseTrainer):
             model_name=self.cm.model.model_id,
             max_seq_length=self.cm.model.max_seq_length,
             dtype=self.cm.model.dtype,
-            load_in_4bit=True if self.cm.lora.use_qlora else False,
-            load_in_8bit=False,
-            full_finetuning=False,
+            load_in_4bit=self.cm.model.load_in_4bit,
+            load_in_8bit=self.cm.model.load_in_8bit,
+            full_finetuning=self.cm.model.full_finetune,
             # device_map="balanced",
             trust_remote_code=True,
         )
@@ -23,26 +23,22 @@ class UnslothSFTTrainer(BaseTrainer):
         self.tokenizer_setup()
         self.tokenizer.padding_side = "right"
 
-        self.model = FastLanguageModel.get_peft_model(
-            self.model,
-            r=self.cm.lora.r,
-            target_modules=self.cm.lora.target_modules,
-            lora_alpha=self.cm.lora.lora_alpha,
-            lora_dropout=self.cm.lora.lora_dropout,
-            bias=self.cm.lora.bias,
-            random_state=self.cm.system.seed,
-            init_lora_weights=self.cm.lora.init_lora_weights,
-        )
-
-
-        print(f"Model setup complete. Total parameters: {self.model.num_parameters():,}")
-        print(f"Trainable parameters: {self.model.num_parameters(only_trainable=True):,}")
-
+        if not self.cm.model.full_finetune:
+            self.model = FastLanguageModel.get_peft_model(
+                self.model,
+                r=self.cm.lora.r,
+                target_modules=self.cm.lora.target_modules,
+                lora_alpha=self.cm.lora.lora_alpha,
+                lora_dropout=self.cm.lora.lora_dropout,
+                bias=self.cm.lora.bias,
+                random_state=self.cm.system.seed,
+                init_lora_weights=self.cm.lora.init_lora_weights,
+            )
 
     def train(self, train_dataset: SFTDataset, eval_dataset: SFTDataset):
         sft_dict = asdict(self.cm.sft)
         sft_dict.update({
-            "data_seed": self.cm.system.seed,
+            # "data_seed": self.cm.system.seed,
             # "ddp_find_unused_parameters": False,"ddp_find_unused_parameters": False,
             # "dataloader_pin_memory": False,  # 이 옵션 추가
             # "dataloader_num_workers": 0,     # 이 옵션도 추가 (안전을 위해)
@@ -80,6 +76,9 @@ class UnslothSFTTrainer(BaseTrainer):
             save_path = os.path.join(self.cm.sft.output_dir, self.cm.system.adapter_dir)
 
         self.model.save_pretrained(save_path)
+        if self.cm.model.full_finetune:
+            self.tokenizer.save_pretrained(save_path)
+
         # self.tokenizer.save_pretrained(save_path)
 
         # 설정 파일도 함께 저장
@@ -88,3 +87,4 @@ class UnslothSFTTrainer(BaseTrainer):
 
         print(f"Adapter saved to: {save_path}")
         return save_path
+

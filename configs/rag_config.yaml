@@ -3,8 +3,8 @@ source_files:
 style: "kowiki" # pdf kowiki
 output_dir: "data/rag_results"
 index_dir: "data/rag_results/index"
-chunk_size: 150
-chunk_overlap: 20
+chunk_size: 100
+chunk_overlap: 5
 min_last_chunk_ratio: 0.2
 model_id: "nlpai-lab/KURE-v1"
 top_k: 3

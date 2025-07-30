@@ -3,8 +3,8 @@
 # KANANA1_5_IT_32B = "LGAI-EXAONE/EXAONE-3.5-32B-Instruct"
 # KANANA1_5_IT_3B = "kakaocorp/kanana-1.5-v-3b-instruct"
 
-# LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct
-
+# "LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct"
+# "kakaocorp/kanana-1.5-2.1b-instruct-2505"
 
 
 model_id: "kakaocorp/kanana-1.5-2.1b-instruct-2505"
@@ -13,7 +13,7 @@ dtype: "bf16" # fp16, bf16
 max_seq_length: 4096 # 4096 2048
 
 load_in_4bit: false
-load_in_8bit: true
+load_in_8bit: false
 full_finetune: true
 
 # only train

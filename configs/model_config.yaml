@@ -4,7 +4,7 @@
 model_id: "kakaocorp/kanana-1.5-8b-instruct-2505"
 dtype: "fp16" # fp16, bf16
 # use_flash_attention: true
-max_seq_length: 8192 # 4096 2048
+max_seq_length: 4096 # 4096 2048
 
 # only train
 early_stopping: 5 # or null

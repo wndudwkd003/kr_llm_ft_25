@@ -1,6 +1,6 @@
 r: 64
 lora_alpha: 64
-lora_dropout: 0.21151
+lora_dropout: 0.2
 target_modules:
   - "q_proj"
   - "k_proj"

@@ -16,7 +16,7 @@ class UnslothSFTTrainer(BaseTrainer):
             load_in_4bit=True if self.cm.lora.use_qlora else False,
             load_in_8bit=False,
             full_finetuning=False,
-            # device_map="sequential",
+            # device_map="balanced",
             trust_remote_code=True,
         )
 
@@ -43,14 +43,17 @@ class UnslothSFTTrainer(BaseTrainer):
         sft_dict = asdict(self.cm.sft)
         sft_dict.update({
             "data_seed": self.cm.system.seed,
-            "dataloader_pin_memory": False,  # 다중GPU에서 권장
-            "ddp_find_unused_parameters": False,  # 성능 향상
+            # "ddp_find_unused_parameters": False,"ddp_find_unused_parameters": False,
+            # "dataloader_pin_memory": False,  # 이 옵션 추가
+            # "dataloader_num_workers": 0,     # 이 옵션도 추가 (안전을 위해)
+            # "remove_unused_columns": False,  # 이 옵션 추가
         })
 
         training_args = TrainingArguments(**sft_dict)
 
         data_collator = DataCollatorForSupervisedDataset(
             tokenizer=self.tokenizer,
+            # model=self.model,
         )
 
         callbacks = [EarlyStoppingCallback(

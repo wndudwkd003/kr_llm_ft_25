@@ -21,9 +21,9 @@ logging_steps: 25
 
 # 학습률 및 스케줄러
 learning_rate: 2.0e-5
-weight_decay: 0.03617 # 0.01
-warmup_ratio: 0.0671 # 0.03
-lr_scheduler_type: "cosine"  # "linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"
+weight_decay: 0.03 # 0.01
+warmup_ratio: 0.05 # 0.03
+lr_scheduler_type: "polynomial"  # "linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"
 
 # 저장 설정
 save_total_limit: 1

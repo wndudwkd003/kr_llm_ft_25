@@ -7,7 +7,7 @@ KURE 임베딩으로 가장 유사한 다른 answer를 찾아 rejected로 저장
 
 사용 예:
     CUDA_VISIBLE_DEVICES=2 python src/utils/dpo_data_make.py \
-        --input data/rag/corpus_results/dev.json \
+        --input data/rag_results/dev.json \
         --output data/processed/dev.json \
         --model nlpai-lab/KURE-v1 \
         --top_k 5 \

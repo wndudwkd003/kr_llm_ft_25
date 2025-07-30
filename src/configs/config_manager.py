@@ -256,6 +256,9 @@ def init_config_manager(dir: str = "configs", train_type: str = "dpo") -> Config
     config_manager = ConfigManager()
 
     config_dir = dir
+    
+    print(f"Loading configs from: {config_dir}")
+
     if train_type == "dpo":
         config_dir = os.path.join(config_dir, "configs")
 

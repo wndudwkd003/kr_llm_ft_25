@@ -1,149 +1,150 @@
 import unsloth
+from unsloth import FastLanguageModel
+from peft import PeftModel
 from transformers import set_seed
 from src.utils.seed_utils import set_all_seeds
-from unsloth import FastLanguageModel
-import os, json, argparse, hashlib
+from src.utils.huggingface_utils import init_hub_env
 from src.configs.config_manager import ConfigManager
 from src.data.prompt_manager import PromptManager
 from src.data.base_dataset import make_chat
-from src.utils.huggingface_utils import init_hub_env
 from tqdm.auto import tqdm
 from datetime import datetime
+import os, json, argparse, hashlib, torch
+
+CURRENT_TEST_TYPE = "dpo"
 
 
-"""
-
-기존의 sft 모델과 dpo 모델과 불러서 병합해야하는 작업 작성해야 함
-
-
-
-"""
-
-
-CURRENT_TEST_TYPE = "sft"
-
+# ─────────────────────────────────────────────────────
+# 0) 설정 로드 util (변경 없음)
+# ─────────────────────────────────────────────────────
 def init_config_manager_for_test(save_dir: str = "configs") -> ConfigManager:
-    # 테스트 환경에서는 저장된 설정을 불러옴
     cm = ConfigManager()
-    config_dir = os.path.join(save_dir, "configs")
-    cm.load_all_configs(config_dir=config_dir)
+    cm.load_all_configs(config_dir=os.path.join(save_dir, "configs"))
 
-    adapter_dir = os.path.join(save_dir, "lora_adapter")
-    test_result_dir = os.path.join(save_dir, "test_result")
+    adapter_dir      = os.path.join(save_dir, "lora_adapter")   # DPO adapter
+    test_result_dir  = os.path.join(save_dir, "test_result")
     os.makedirs(test_result_dir, exist_ok=True)
-    print(f"Test results will be saved to: {test_result_dir}")
 
     cm.update_config("system", {
         "save_dir": save_dir,
         "adapter_dir": adapter_dir,
-        "test_result_dir": test_result_dir
+        "test_result_dir": test_result_dir,
     })
-
     cm.print_all_configs()
     return cm
 
 
-def main(cm: ConfigManager):
-    # 테스트 모드
+# ─────────────────────────────────────────────────────
+# 1) 모델 + 어댑터 로드 🔥
+# ─────────────────────────────────────────────────────
+def get_merged_dpo_model(cm):
+    # ── 0) 베이스 모델 로드 ────────────────────────────────
+    print("▶ Loading base model …")
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=cm.model.model_id,
-        max_seq_length=cm.model.max_seq_length,
-        dtype=cm.model.dtype,
-        load_in_4bit=False,
-        load_in_8bit=False,
+        model_name     = cm.model.model_id,
+        max_seq_length = cm.model.max_seq_length,
+        dtype          = cm.model.dtype,
+        load_in_4bit   = False,
+        load_in_8bit   = False,
     )
-
-    # padding token 설정
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    # 어댑터 로드
-    model = FastLanguageModel.for_inference(model)
-    model.load_adapter(cm.system.adapter_dir)
+    # ── 1) SFT LoRA 병합 ──────────────────────────────────
+    sft_adapter_dir = os.path.join(cm.system.sft_model_for_dpo, "lora_adapter")
+    if not os.path.isdir(sft_adapter_dir):
+        raise FileNotFoundError(f"SFT adapter not found: {sft_adapter_dir}")
+    print(f"▶ Merging SFT adapter: {sft_adapter_dir}")
 
-    # 테스트 데이터셋 로드
+    peft_sft = PeftModel.from_pretrained(model, sft_adapter_dir, is_trainable=False)
+    model    = peft_sft.merge_and_unload()        # LoRA 가중치를 베이스에 합침
+    del peft_sft
+    torch.cuda.empty_cache()
+
+    # ── 2) DPO LoRA 적용 ─────────────────────────────────
+    dpo_adapter_dir = os.path.join(cm.dpo.output_dir, "lora_adapter")
+    if not os.path.isdir(dpo_adapter_dir):
+        raise FileNotFoundError(f"DPO adapter not found: {dpo_adapter_dir}")
+    print(f"▶ Loading DPO adapter: {dpo_adapter_dir}")
+
+    model = PeftModel.from_pretrained(model, dpo_adapter_dir, is_trainable=False)
+
+    # ── 3) Inference 최적화 ──────────────────────────────
+    model = FastLanguageModel.for_inference(model)
+    return model, tokenizer
+
+
+# ─────────────────────────────────────────────────────
+# 2) 실제 테스트
+# ─────────────────────────────────────────────────────
+def main(cm: ConfigManager):
+    model, tokenizer = get_merged_dpo_model(cm)
+    model.eval()
+
     with open(os.path.join(cm.system.data_raw_dir, "test.json"), "r", encoding="utf-8") as f:
         test_data = json.load(f)
 
-
-    # 시스템 프롬프트 가져오기
-    prompt_version = cm.system.prompt_version
-    system_prompt = PromptManager.get_system_prompt(prompt_version)
-
-    # 결과를 저장할 리스트
+    system_prompt = PromptManager.get_system_prompt(cm.system.prompt_version)
     results = []
 
     for sample in tqdm(test_data, desc="Testing", unit="sample"):
-        # make_chat 함수로 프롬프트 생성
-        user_prompt = make_chat(
-            sample["input"],
-            cm
-        )
+        user_prompt = make_chat(sample["input"], cm)
 
-        message = [
+        messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
+            {"role": "user",   "content": user_prompt},
         ]
 
-        # 토크나이즈
         inputs = tokenizer.apply_chat_template(
-            message,
+            messages,
             add_generation_prompt=True,
             return_tensors="pt",
         ).to(model.device)
 
         attention_mask = (inputs != tokenizer.pad_token_id).long().to(model.device)
 
-        # 생성
         outputs = model.generate(
             inputs,
-            max_new_tokens=cm.model.max_new_tokens,
-            do_sample=cm.model.do_sample,
-            attention_mask=attention_mask,
+            max_new_tokens   = cm.model.max_new_tokens,
+            do_sample        = cm.model.do_sample,
+            attention_mask   = attention_mask,
         )
 
-        # 답변 추출
-        answer = tokenizer.decode(outputs[0][inputs.shape[-1]:], skip_special_tokens=True)
+        answer = tokenizer.decode(
+            outputs[0][inputs.shape[-1]:],
+            skip_special_tokens=True,
+        ).lstrip("답변: ").split("#")[0].strip()
 
-        if answer.startswith("답변: "):
-            answer = answer[4:]
-        elif answer.startswith("답변:"):
-            answer = answer[3:]
-
-        if "#" in answer:
-            answer = answer.split("#")[0].strip()
-
-        # 결과 저장
         results.append({
             "id": sample["id"],
             "input": sample["input"],
-            "output": {"answer": answer}
+            "output": {"answer": answer},
         })
 
-    # 결과 파일 저장
-    save_dir_hash = hashlib.md5(cm.system.save_dir.encode()).hexdigest()[:8]  # 8자리만 사용
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    save_hash  = hashlib.md5(cm.system.save_dir.encode()).hexdigest()[:8]
+    timestamp  = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    out_fname  = f"test_results_{save_hash}_{timestamp}.json"
+    out_path   = os.path.join(cm.system.test_result_dir, out_fname)
 
-    # 파일명에 해시 포함
-    output_filename = f"test_results_{save_dir_hash}_{timestamp}.json"
-    output_path = os.path.join(cm.system.test_result_dir, output_filename)
-
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
 
-    print(f"\nResults saved to: {os.path.dirname(output_path)}")
+    print(f"\n✅ Results saved to: {out_path}")
 
 
+# ─────────────────────────────────────────────────────
+# 3) run
+# ─────────────────────────────────────────────────────
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Test SFT Model")
-    parser.add_argument("--save_dir", type=str, required=True, help="Must be set to save the trained model.")
+    parser = argparse.ArgumentParser(description="Test merged DPO model")
+    parser.add_argument("--save_dir", required=True, help="디렉터리(root) 경로 – DPO 학습 결과가 들어있는 폴더")
     args = parser.parse_args()
 
-    # 설정 관리자 초기화
-    config_manager = init_config_manager_for_test(save_dir=args.save_dir)
-    config_manager.update_config("sft", {"seed": config_manager.system.seed})
-    init_hub_env(config_manager.system.hf_token)
-    set_seed(config_manager.system.seed)
-    set_all_seeds(config_manager.system.seed, deterministic=config_manager.system.deterministic)
+    cm = init_config_manager_for_test(args.save_dir)
+    cm.update_config("dpo", {"seed": cm.system.seed})
 
-    main(config_manager)
+    init_hub_env(cm.system.hf_token)
+    set_seed(cm.system.seed)
+    set_all_seeds(cm.system.seed, deterministic=cm.system.deterministic)
+
+    main(cm)

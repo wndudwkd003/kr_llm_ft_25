@@ -1,4 +1,29 @@
-## 증강
+## 사용방법
+1. 레퍼지토리 클론
+```
+git clone https://github.com/wndudwkd003/kr_llm_ft_25.git
+cd kr_llm_ft_25
+```
+
+2. 학습 실행 쉘
+```
+. run/run_sft_train.sh
+```
+
+3. 평가 실행 쉘 *(내부 쉘 파일의 경로 설정 주의)*
+```
+. run/run_sft_test.sh
+```
+
+### 주의사항
+1. 학습과 평가를 진행할 때 파라미터의 데이터 경로를 정확하게 설정한다.
+2. 평가를 진행할 때 학습 시 저장되는 폴더의 경로를 정확하게 설정한다.
+
+### 파라미터 수정 방법
+- configs의 각종 config를 변경하면 된다.
+
+
+## 검색 증강
 ### 옵션 설정
 1. configs/rag_config.yaml에서 source_files을 data/rag/corpus.pdf로 설정한다.
 2. output_dir를 data/rag_results로 설정한다.

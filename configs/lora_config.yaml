@@ -1,20 +1,15 @@
-r: 64
-lora_alpha: 64
+bias: none
+init_lora_weights: true
+lora_alpha: 256
 lora_dropout: 0.2
+r: 128
 target_modules:
-  - "q_proj"
-  - "k_proj"
-  - "v_proj"
-  - "o_proj"
-  - "gate_proj"
-  - "up_proj"
-  - "down_proj"
-bias: "none"
-init_lora_weights: true # "gaussian"
+- q_proj
+- k_proj
+- v_proj
+- o_proj
+- gate_proj
+- up_proj
+- down_proj
 use_dora: false
 use_rslora: false
-use_qlora: false
-
-
-
-

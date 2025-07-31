@@ -6,21 +6,15 @@
 # "LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct"
 # "kakaocorp/kanana-1.5-2.1b-instruct-2505"
 
-
-model_id: "kakaocorp/kanana-1.5-2.1b-instruct-2505"
-dtype: "bf16" # fp16, bf16
-# use_flash_attention: true
-max_seq_length: 4096 # 4096 2048
+# skt/kobert-base-v1
+do_sample: false
+dtype: fp16
+early_stopping: 5
+early_stopping_threshold: 0.001
+max_new_tokens: 2048
+max_seq_length: 4096
+model_id: kakaocorp/kanana-1.5-8b-instruct-2505
 
 load_in_4bit: false
 load_in_8bit: false
-full_finetune: true
-
-# only train
-early_stopping: 5 # or null
-early_stopping_threshold: 0.001 # or null
-
-# only test
-max_new_tokens: 2048
-do_sample: false
-
+full_finetune: false

@@ -1,4 +1,4 @@
 # run script for SFT training
 
-CUDA_VISIBLE_DEVICES=2 python -m scripts.test_sft --save_dir "output/2025-07-30_13-15-30_LGAI-EXAONE_EXAONE-3.5-2.4B-Instruct_r_64_ra_64_rd_0.2_bfloat16_sft"
+CUDA_VISIBLE_DEVICES=1 python -m scripts.test_sft --save_dir "output/2025-07-27_10-30-56_kakaocorp_kanana-1.5-8b-instruct-2505_r_128_ra_256_rd_0.2_float16_sft"
 

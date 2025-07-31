@@ -1,6 +1,6 @@
 # 출력 디렉토리 - 실행 시 자동으로 변경됨
 output_dir: "output"
-seed: 2025
+seed: 42
 
 # 학습 에폭 수
 num_train_epochs: 5
@@ -15,15 +15,15 @@ gradient_accumulation_steps: 1  # GLOBAL_BATCH_SIZE // (per_device_train_batch_s
 # 평가 및 저장 전략
 eval_strategy: "steps"  # "no", "epoch", "steps"
 save_strategy: "steps"  # "no", "epoch", "steps"
-eval_steps: 613 # 613 100
-save_steps: 613 # 613 100
+eval_steps: 100 # 613 100
+save_steps: 100 # 613 100
 logging_steps: 25
 
 # 학습률 및 스케줄러
 learning_rate: 2.0e-5
 weight_decay: 0.01
 warmup_ratio: 0.03
-lr_scheduler_type: "cosine"  # "linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"
+lr_scheduler_type: "cosine_with_restarts"  # "linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"
 
 # 저장 설정
 save_total_limit: 1

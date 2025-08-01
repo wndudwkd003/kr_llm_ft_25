@@ -94,7 +94,7 @@ def get_rag_context(sample: dict[str, Any], context_field: str = "retrieved_cont
     """RAG 사용 여부에 따라 context를 반환하는 함수. 예: [관련 정보] ~~~ """
     raw_context = sample.get(context_field, "")
     # RAG 컨텍스트 정리
-    cleaned_context = clean_retrieved_context(raw_context)
+    cleaned_context = raw_context # clean_retrieved_context(raw_context)
     return f"{context_text} {cleaned_context}" if cleaned_context else raw_context
 
 
